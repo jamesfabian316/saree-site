@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .image-container {
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    img {
+      max-width: 300px;
+      display: block;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Image Loading Test</h1>
+
+  <div class="image-container">
+    <h2>Direct Image Path</h2>
+    <img src="/images/image-1741711907930-243574193.webp" alt="Test Image 1">
+    <p>Path: /images/image-1741711907930-243574193.webp</p>
+  </div>
+
+  <div class="image-container">
+    <h2>Absolute URL</h2>
+    <img src="http://localhost:5000/images/image-1741711907930-243574193.webp" alt="Test Image 2">
+    <p>Path: http://localhost:5000/images/image-1741711907930-243574193.webp</p>
+  </div>
+
+  <div class="image-container">
+    <h2>Default Image</h2>
+    <img src="/images/tussar-silk.jpg" alt="Default Image">
+    <p>Path: /images/tussar-silk.jpg</p>
+  </div>
+
+  <script>
+    // Log image loading errors
+    document.querySelectorAll('img').forEach(img => {
+      img.onerror = function () {
+        console.error('Failed to load image:', this.src);
+        this.style.border = '2px solid red';
+        const errorMsg = document.createElement('p');
+        errorMsg.style.color = 'red';
+        errorMsg.textContent = 'Error loading image';
+        this.parentNode.appendChild(errorMsg);
+      };
+
+      img.onload = function () {
+        console.log('Successfully loaded image:', this.src);
+        this.style.border = '2px solid green';
+      };
+    });
+  </script>
+</body>
+
+</html>
