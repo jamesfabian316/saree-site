@@ -63,8 +63,19 @@ async function closeDb() {
  * @returns {Promise<any>} - Query result
  */
 async function run(sql, params = []) {
-	const db = await getDb()
-	return db.run(sql, params)
+	try {
+		const db = await getDb()
+		console.log('Executing SQL:', sql)
+		console.log('With parameters:', params)
+		const result = await db.run(sql, params)
+		console.log('SQL execution result:', result)
+		return result
+	} catch (error) {
+		console.error('Database error in run():', error.message)
+		console.error('SQL:', sql)
+		console.error('Parameters:', params)
+		throw error
+	}
 }
 
 /**
@@ -74,8 +85,18 @@ async function run(sql, params = []) {
  * @returns {Promise<any>} - Query result
  */
 async function get(sql, params = []) {
-	const db = await getDb()
-	return db.get(sql, params)
+	try {
+		const db = await getDb()
+		console.log('Executing SQL (get):', sql)
+		console.log('With parameters:', params)
+		const result = await db.get(sql, params)
+		return result
+	} catch (error) {
+		console.error('Database error in get():', error.message)
+		console.error('SQL:', sql)
+		console.error('Parameters:', params)
+		throw error
+	}
 }
 
 /**
@@ -85,8 +106,18 @@ async function get(sql, params = []) {
  * @returns {Promise<any[]>} - Query results
  */
 async function all(sql, params = []) {
-	const db = await getDb()
-	return db.all(sql, params)
+	try {
+		const db = await getDb()
+		console.log('Executing SQL (all):', sql)
+		console.log('With parameters:', params)
+		const results = await db.all(sql, params)
+		return results
+	} catch (error) {
+		console.error('Database error in all():', error.message)
+		console.error('SQL:', sql)
+		console.error('Parameters:', params)
+		throw error
+	}
 }
 
 /**
