@@ -45,7 +45,7 @@ router.post('/checkout', productController.processCheckout)
 router.post(
 	'/admin',
 	upload.single('image'),
-	productValidationRules(),
+	productValidationRules,
 	validate,
 	productController.createProduct
 )
@@ -53,7 +53,7 @@ router.post(
 router.put(
 	'/admin/:id',
 	upload.single('image'),
-	productValidationRules(),
+	productValidationRules,
 	validate,
 	productController.updateProduct
 )
