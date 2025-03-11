@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { Product } from '../types'
+import { config } from '../config'
 import {
 	Container,
 	Typography,
@@ -26,7 +28,6 @@ import {
 	Check as CheckIcon,
 	ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material'
-import { Product } from '../types'
 
 interface CheckoutPageProps {
 	cart: Product[]
@@ -102,7 +103,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, clearCart }) => {
 		setError(null)
 
 		try {
-			const response = await axios.post('/api/checkout', {
+			const response = await axios.post(`${config.API_URL}/api/checkout`, {
 				cart,
 				shippingInfo: {
 					firstName: formData.firstName,
