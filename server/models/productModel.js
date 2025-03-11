@@ -108,18 +108,53 @@ async function createProduct(product) {
  * @returns {Promise<Object>} - Updated product
  */
 async function updateProduct(id, product) {
-	validateProduct(product)
+	try {
+		validateProduct(product)
 
-	const { name, price, discount, category, image, description, stock } = product
+		const { name, price, discount, category, image, description, stock } = product
 
-	await db.run(
-		'UPDATE products SET name = ?, price = ?, discount = ?, category = ?, image = ?, description = ?, stock = ? WHERE id = ?',
-		[name, price, discount, category, image, description, stock, id]
-	)
+		// Ensure numeric values are properly converted
+		const numericPrice = parseFloat(price)
+		const numericDiscount = parseFloat(discount)
+		const numericStock = parseInt(stock)
 
-	return {
-		id,
-		...product,
+		console.log('Updating product in database:', {
+			id,
+			name,
+			price: numericPrice,
+			discount: numericDiscount,
+			category,
+			image,
+			description,
+			stock: numericStock,
+		})
+
+		const result = await db.run(
+			'UPDATE products SET name = ?, price = ?, discount = ?, category = ?, image = ?, description = ?, stock = ? WHERE id = ?',
+			[name, numericPrice, numericDiscount, category, image, description, numericStock, id]
+		)
+
+		console.log('Database update result:', result)
+
+		// Verify the update was successful
+		if (result.changes === 0) {
+			console.warn(`No rows were updated for product ID ${id}. The product might not exist.`)
+		}
+
+		return {
+			id,
+			name,
+			price: numericPrice,
+			discount: numericDiscount,
+			category,
+			image,
+			description,
+			stock: numericStock,
+		}
+	} catch (error) {
+		console.error('Error in updateProduct:', error.message)
+		console.error('Error stack:', error.stack)
+		throw error
 	}
 }
 
@@ -139,29 +174,46 @@ async function deleteProduct(id) {
  * @throws {ValidationError} - If validation fails
  */
 function validateProduct(product) {
+	console.log('Validating product data:', product)
+
 	const { name, price, discount, category, description, stock } = product
 
 	if (
 		!name ||
-		!price ||
+		price === undefined ||
 		discount === undefined ||
 		!category ||
 		!description ||
 		stock === undefined
 	) {
-		throw new ValidationError('All fields are required')
+		const missingFields = []
+		if (!name) missingFields.push('name')
+		if (price === undefined) missingFields.push('price')
+		if (discount === undefined) missingFields.push('discount')
+		if (!category) missingFields.push('category')
+		if (!description) missingFields.push('description')
+		if (stock === undefined) missingFields.push('stock')
+
+		throw new ValidationError(`Missing required fields: ${missingFields.join(', ')}`)
 	}
 
-	if (isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
-		throw new ValidationError('Price must be a positive number')
+	const numericPrice = parseFloat(price)
+	if (isNaN(numericPrice) || numericPrice <= 0) {
+		throw new ValidationError(`Price must be a positive number, got: ${price} (${typeof price})`)
 	}
 
-	if (isNaN(parseFloat(discount)) || parseFloat(discount) < 0 || parseFloat(discount) > 100) {
-		throw new ValidationError('Discount must be a number between 0 and 100')
+	const numericDiscount = parseFloat(discount)
+	if (isNaN(numericDiscount) || numericDiscount < 0 || numericDiscount > 100) {
+		throw new ValidationError(
+			`Discount must be a number between 0 and 100, got: ${discount} (${typeof discount})`
+		)
 	}
 
-	if (isNaN(parseInt(stock)) || parseInt(stock) < 0) {
-		throw new ValidationError('Stock must be a non-negative integer')
+	const numericStock = parseInt(stock)
+	if (isNaN(numericStock) || numericStock < 0) {
+		throw new ValidationError(
+			`Stock must be a non-negative integer, got: ${stock} (${typeof stock})`
+		)
 	}
 }
 
