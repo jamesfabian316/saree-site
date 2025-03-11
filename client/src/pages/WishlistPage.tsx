@@ -274,26 +274,22 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 													{item.discount > 0 && (
 														<Typography
 															variant='body2'
-															component='span'
 															sx={{
 																textDecoration: 'line-through',
 																color: 'text.secondary',
-																mr: 1,
-																fontSize: '0.85rem',
 															}}
 														>
-															${item.price.toFixed(2)}
+															₹{item.price.toFixed(2)}
 														</Typography>
 													)}
 													<Typography
 														variant='h6'
-														component='span'
 														sx={{
 															fontWeight: 700,
 															color: 'primary.main',
 														}}
 													>
-														${discountedPrice.toFixed(2)}
+														₹{discountedPrice.toFixed(2)}
 													</Typography>
 												</Box>
 
