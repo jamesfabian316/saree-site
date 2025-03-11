@@ -13,6 +13,7 @@ import {
 	Tooltip,
 } from '@mui/material'
 import { Product } from '../types'
+import { config } from '../config'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
@@ -32,6 +33,24 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 		: product.price
 
 	const inWishlist = isInWishlist(product.id)
+
+	// Format the image URL correctly
+	let imageUrl = ''
+
+	if (!product.image) {
+		imageUrl = 'https://via.placeholder.com/500x500?text=No+Image+Available'
+	} else if (product.image.startsWith('http')) {
+		imageUrl = product.image
+	} else if (product.image.startsWith('/images/')) {
+		// If the path already includes /images/, just append to API_URL
+		imageUrl = `${config.API_URL}${product.image}`
+	} else {
+		// Otherwise, add /images/ prefix
+		imageUrl = `${config.API_URL}/images/${product.image}`
+	}
+
+	console.log('Product card image path:', product.image)
+	console.log('Product card constructed URL:', imageUrl)
 
 	return (
 		<Card
@@ -125,7 +144,7 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 				<CardMedia
 					component='img'
 					height='280'
-					image={product.image}
+					image={imageUrl}
 					alt={product.name}
 					sx={{
 						objectFit: 'cover',
@@ -312,34 +331,49 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 					}}
 				>
 					<Box>
-						{product.discount > 0 && (
+						{product.discount > 0 ? (
+							<>
+								<Typography
+									variant='h6'
+									sx={{
+										fontWeight: 700,
+										color: 'primary.main',
+										background: 'linear-gradient(45deg, #FF4D8F 30%, #FF758E 90%)',
+										WebkitBackgroundClip: 'text',
+										WebkitTextFillColor: 'transparent',
+										backgroundClip: 'text',
+										textFillColor: 'transparent',
+									}}
+								>
+									₹{discountedPrice.toFixed(2)}
+								</Typography>
+								<Typography
+									variant='body2'
+									sx={{
+										textDecoration: 'line-through',
+										color: 'text.secondary',
+										ml: 1,
+									}}
+								>
+									₹{product.price.toFixed(2)}
+								</Typography>
+							</>
+						) : (
 							<Typography
-								variant='body2'
+								variant='h6'
 								component='span'
 								sx={{
-									textDecoration: 'line-through',
-									color: 'text.secondary',
-									mr: 1,
-									fontSize: '0.85rem',
+									fontWeight: 700,
+									background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
+									WebkitBackgroundClip: 'text',
+									WebkitTextFillColor: 'transparent',
+									backgroundClip: 'text',
+									textFillColor: 'transparent',
 								}}
 							>
-								${product.price.toFixed(2)}
+								₹{product.price.toFixed(2)}
 							</Typography>
 						)}
-						<Typography
-							variant='h6'
-							component='span'
-							sx={{
-								fontWeight: 700,
-								background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-								WebkitBackgroundClip: 'text',
-								WebkitTextFillColor: 'transparent',
-								backgroundClip: 'text',
-								textFillColor: 'transparent',
-							}}
-						>
-							${discountedPrice.toFixed(2)}
-						</Typography>
 					</Box>
 
 					<Box sx={{ display: 'flex', alignItems: 'center' }}>
