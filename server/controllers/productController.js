@@ -202,10 +202,20 @@ async function deleteProduct(req, res, next) {
 // Handle checkout process
 async function processCheckout(req, res, next) {
 	try {
-		const { cart } = req.body
+		const { cart, shippingInfo, paymentInfo } = req.body
 
 		if (!cart || !Array.isArray(cart) || cart.length === 0) {
 			return res.status(400).json({ error: 'Invalid cart data' })
+		}
+
+		// Validate shipping info
+		if (!shippingInfo || !shippingInfo.firstName || !shippingInfo.email || !shippingInfo.address) {
+			return res.status(400).json({ error: 'Shipping information is incomplete' })
+		}
+
+		// Validate payment info (in a real app, you'd use a payment processor)
+		if (!paymentInfo || !paymentInfo.cardNumber || !paymentInfo.expDate || !paymentInfo.cvv) {
+			return res.status(400).json({ error: 'Payment information is incomplete' })
 		}
 
 		// Generate a mock order ID
@@ -228,14 +238,31 @@ async function processCheckout(req, res, next) {
 		// 4. Update stock levels
 		// 5. Send confirmation email
 
+		// Log the order for debugging
+		console.log('Order processed:', {
+			orderId,
+			total: parseFloat(total.toFixed(2)),
+			items: cart.length,
+			shippingInfo: {
+				...shippingInfo,
+				// Don't log full address for privacy
+				address: `${shippingInfo.address.substring(0, 5)}...`,
+			},
+			// Don't log sensitive payment info
+			paymentMethod: 'Credit Card',
+			currency: '₹',
+		})
+
 		res.json({
 			message: 'Order placed successfully!',
 			orderId,
 			total: parseFloat(total.toFixed(2)),
 			items: cart.length,
 			date: new Date().toISOString(),
+			currency: '₹',
 		})
 	} catch (error) {
+		console.error('Checkout error:', error)
 		next(error)
 	}
 }
