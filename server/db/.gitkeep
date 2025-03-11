@@ -1,0 +1,2 @@
+# This file ensures that the db directory is tracked by Git
+# even though the database files themselves are not tracked. 

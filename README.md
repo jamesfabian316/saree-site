@@ -83,6 +83,23 @@ A full-stack e-commerce website for selling traditional Indian sarees.
    npm install
    ```
 
+### Database Setup
+
+The application uses SQLite for data storage. To initialize the database:
+
+1. Navigate to the server directory:
+
+   ```
+   cd server
+   ```
+
+2. Run the database initialization script:
+   ```
+   npm run init-db
+   ```
+
+This will create the database file and populate it with sample products.
+
 ### Running the Application
 
 1. Start the backend server:
