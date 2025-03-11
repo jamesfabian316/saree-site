@@ -1,0 +1,31 @@
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+}
+
+nav {
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem;
+	background: #f8f8f8;
+}
+
+.product-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.product-card {
+	border: 1px solid #ddd;
+	padding: 1rem;
+	width: 200px;
+}
+
+.search-bar {
+	margin: 1rem 0;
+}
+
+.search-bar input {
+	margin-right: 1rem;
+}
