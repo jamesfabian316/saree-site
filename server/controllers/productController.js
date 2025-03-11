@@ -108,7 +108,13 @@ async function createProduct(req, res, next) {
 		})
 
 		// Invalidate products cache
-		cache.del(/^products_/)
+		// Clear all product cache entries (using a string pattern instead of regex)
+		const keys = cache.keys()
+		for (const key of keys) {
+			if (key.startsWith('products_')) {
+				cache.del(key)
+			}
+		}
 
 		res.status(201).json({
 			message: 'Product created successfully',
@@ -127,7 +133,14 @@ async function createProduct(req, res, next) {
 async function updateProduct(req, res, next) {
 	try {
 		const { id } = req.params
-		const { name, price, discount, category, description, stock } = req.body
+		const { name, price, discount, category, description, stock, keepExistingImage } = req.body
+
+		console.log('Update request received:', {
+			id,
+			body: req.body,
+			file: req.file ? 'File uploaded' : 'No file uploaded',
+			params: req.params,
+		})
 
 		// Check if product exists
 		const existingProduct = await ProductModel.getProductById(id)
@@ -142,7 +155,22 @@ async function updateProduct(req, res, next) {
 			// Delete old image if it exists and is not a default image
 			deleteImageFile(existingProduct.image)
 			image = `/images/${req.file.filename}`
+			console.log('Updated image path:', image)
+		} else {
+			console.log('Keeping existing image:', image)
 		}
+
+		// Log the data being sent to the model
+		console.log('Updating product with data:', {
+			id,
+			name,
+			price: typeof price === 'string' ? parseFloat(price) : price,
+			discount: typeof discount === 'string' ? parseFloat(discount) : discount,
+			category,
+			image,
+			description,
+			stock: typeof stock === 'string' ? parseInt(stock) : stock,
+		})
 
 		const updatedProduct = await ProductModel.updateProduct(id, {
 			name,
@@ -156,13 +184,23 @@ async function updateProduct(req, res, next) {
 
 		// Invalidate caches
 		cache.del(`product_${id}`)
-		cache.del(/^products_/)
 
+		// Clear all product cache entries (using a string pattern instead of regex)
+		const keys = cache.keys()
+		for (const key of keys) {
+			if (key.startsWith('products_')) {
+				cache.del(key)
+			}
+		}
+
+		console.log('Product updated successfully:', updatedProduct)
 		res.json({
 			message: 'Product updated successfully',
 			product: updatedProduct,
 		})
 	} catch (error) {
+		console.error('Error updating product:', error.message)
+		console.error('Error stack:', error.stack)
 		// Delete uploaded image if there was an error
 		if (req.file) {
 			deleteImageFile(`/images/${req.file.filename}`)
@@ -191,7 +229,14 @@ async function deleteProduct(req, res, next) {
 
 		// Invalidate caches
 		cache.del(`product_${id}`)
-		cache.del(/^products_/)
+
+		// Clear all product cache entries (using a string pattern instead of regex)
+		const keys = cache.keys()
+		for (const key of keys) {
+			if (key.startsWith('products_')) {
+				cache.del(key)
+			}
+		}
 
 		res.json({ message: 'Product deleted successfully' })
 	} catch (error) {
