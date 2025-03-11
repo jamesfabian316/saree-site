@@ -96,9 +96,23 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 	}
 
 	// Format the image URL correctly
-	const imageUrl = product.image.startsWith('http')
-		? product.image
-		: `${config.API_URL}${product.image}`
+	let imageUrl = ''
+
+	if (!product.image) {
+		imageUrl = 'https://via.placeholder.com/500x500?text=No+Image+Available'
+	} else if (product.image.startsWith('http')) {
+		imageUrl = product.image
+	} else if (product.image.startsWith('/images/')) {
+		// If the path already includes /images/, just append to API_URL
+		imageUrl = `${config.API_URL}${product.image}`
+	} else {
+		// Otherwise, add /images/ prefix
+		imageUrl = `${config.API_URL}/images/${product.image}`
+	}
+
+	console.log('Product image path:', product.image)
+	console.log('Constructed image URL:', imageUrl)
+	console.log('API URL from config:', config.API_URL)
 
 	const discountedPrice = product.discount
 		? product.price - (product.price * product.discount) / 100
@@ -296,7 +310,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 										textFillColor: 'transparent',
 									}}
 								>
-									${discountedPrice.toFixed(2)}
+									₹{discountedPrice.toFixed(2)}
 								</Typography>
 
 								{product.discount > 0 && (
@@ -309,7 +323,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 												fontWeight: 400,
 											}}
 										>
-											${product.price.toFixed(2)}
+											₹{product.price.toFixed(2)}
 										</Typography>
 										<Chip
 											label={`${product.discount}% OFF`}
