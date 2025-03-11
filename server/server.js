@@ -43,7 +43,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						8500,
 						15,
 						'Silk',
-						'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=800&auto=format',
+						'https://i.pinimg.com/736x/72/f0/51/72f051ba44aec2d22d1d22e1a2cc8432.jpg',
 						'Handwoven Kanchipuram pure silk saree with real gold zari work. The traditional motifs and temple borders make this saree perfect for weddings and special occasions. Comes with a matching blouse piece.',
 					],
 					[
@@ -51,7 +51,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						7200,
 						10,
 						'Silk',
-						'https://images.pexels.com/photos/12809964/pexels-photo-12809964.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.etsystatic.com/17708046/r/il/a9b87a/3020228832/il_794xN.3020228832_58ib.jpg',
 						'Authentic Banarasi silk saree featuring intricate gold and silver zari work. Known for its opulent designs and rich texture, this saree showcases traditional motifs and is perfect for festive occasions.',
 					],
 					[
@@ -59,7 +59,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						4500,
 						12,
 						'Silk',
-						'https://images.pexels.com/photos/2058130/pexels-photo-2058130.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://5.imimg.com/data5/GV/VZ/MY-10171613/mysore-silk-crepe-saree-500x500.jpg',
 						'Lightweight Mysore Crepe silk saree with subtle golden border. The minimalist design makes it suitable for both casual and formal wear. Comfortable to drape for extended periods.',
 					],
 					[
@@ -67,7 +67,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3200,
 						8,
 						'Silk Cotton',
-						'https://images.pexels.com/photos/7395140/pexels-photo-7395140.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/cb/24/63/cb2463b06c9579b73a48208df3b2f498.jpg',
 						'Handloom Gadwal saree with silk border and cotton body. Features traditional temple designs and contrast pallu. A perfect blend of comfort and elegance suitable for regular wear.',
 					],
 					[
@@ -75,7 +75,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						1800,
 						20,
 						'Cotton',
-						'https://images.pexels.com/photos/7395154/pexels-photo-7395154.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.etsystatic.com/22064484/r/il/d49697/3332021348/il_794xN.3332021348_tqij.jpg',
 						'Breathable handloom cotton saree with modern geometric patterns. Ideal for summer wear and office use. Comes with a contrast blouse piece and natural vegetable dyes.',
 					],
 					[
@@ -83,7 +83,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3600,
 						14,
 						'Cotton',
-						'https://images.pexels.com/photos/10467844/pexels-photo-10467844.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/originals/10/d4/1e/10d41e7bb5d48089bc38355d9c8a40e7.jpg',
 						'Geometric Pochampally Ikat cotton saree hand-woven by skilled artisans. The unique tie and dye technique creates beautiful diamond patterns. Perfect for casual gatherings and daily wear.',
 					],
 					[
@@ -91,7 +91,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						5200,
 						10,
 						'Silk',
-						'https://images.pexels.com/photos/14385177/pexels-photo-14385177.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/b9/12/ae/b912ae9ec942d7b23e39c8ea15677761.jpg',
 						'Tribal Bomkai silk saree from Odisha with traditional fish and conch motifs. Features a contrast pallu and border with intricate embroidery. Ideal for cultural events and festivals.',
 					],
 					[
@@ -99,7 +99,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3900,
 						18,
 						'Silk Cotton',
-						'https://images.pexels.com/photos/10434669/pexels-photo-10434669.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/dd/74/2c/dd742c4cebcb0c11a1c6094b61fcfbaa.jpg',
 						'Lightweight Chanderi silk cotton blend saree with shimmering texture. Features small buttis (dots) throughout and a delicate zari border. Perfect for both casual and semi-formal occasions.',
 					],
 					[
@@ -107,7 +107,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						2800,
 						12,
 						'Linen',
-						'https://images.pexels.com/photos/8339029/pexels-photo-8339029.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/originals/60/40/68/6040683f926acd32137f42962aca0f2d.jpg',
 						'Premium linen saree with silver zari border. Extremely breathable and comfortable for summer wear. The contemporary design makes it perfect for office wear and casual outings.',
 					],
 					[
@@ -115,7 +115,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						9500,
 						8,
 						'Silk',
-						'https://images.pexels.com/photos/13606118/pexels-photo-13606118.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/17/f0/6c/17f06c2a1fddc8a84b9933a69b9ff348.jpg',
 						'Traditional Maharashtrian Paithani silk saree with peacock motifs and pallu. Handwoven with pure gold zari work, this heirloom piece is perfect for weddings and special occasions.',
 					],
 					[
@@ -123,7 +123,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						2100,
 						15,
 						'Cotton',
-						'https://images.pexels.com/photos/13221668/pexels-photo-13221668.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.etsystatic.com/16589162/r/il/fe8604/1874048850/il_794xN.1874048850_89eh.jpg',
 						'Hand-painted Kalamkari cotton saree featuring mythological stories and floral patterns. Uses natural dyes and traditional pen techniques. A wearable art piece for cultural events.',
 					],
 					[
@@ -131,7 +131,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						4300,
 						10,
 						'Organza',
-						'https://images.pexels.com/photos/2749500/pexels-photo-2749500.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/2f/0c/3b/2f0c3b0d43b06d9c12c40c26c5f51d50.jpg',
 						'Lightweight and translucent organza tissue saree with embroidered flowers. The shimmering effect gives a modern look while maintaining traditional aesthetics. Perfect for evening parties.',
 					],
 					[
@@ -139,7 +139,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3800,
 						12,
 						'Silk',
-						'https://images.pexels.com/photos/4940756/pexels-photo-4940756.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/originals/b5/f1/79/b5f179e0a42d5e1e0dbfbd0b7cb35b3f.jpg',
 						'Natural Tussar silk saree with a distinctive texture and earthy tones. Features handpainted madhubani art on the border and pallu. Ideal for art enthusiasts and casual social gatherings.',
 					],
 					[
@@ -147,7 +147,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						2900,
 						14,
 						'Cotton',
-						'https://images.pexels.com/photos/12463779/pexels-photo-12463779.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/9d/d1/de/9dd1deaafc7afa645d914a8f429d2911.jpg',
 						'Fine Jamdani cotton saree with intricate floral patterns woven directly into the fabric. This lightweight, breathable saree combines traditional craftsmanship with everyday comfort.',
 					],
 					[
@@ -155,7 +155,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						2400,
 						15,
 						'Cotton',
-						'https://images.pexels.com/photos/11650554/pexels-photo-11650554.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/9f/91/70/9f9170ecede3b4fcc95055793d48a48a.jpg',
 						'Traditional Kerala handloom cotton saree with golden kasavu (zari) border. The minimalist white and gold combination makes it perfect for Onam celebrations and religious ceremonies.',
 					],
 					[
@@ -163,7 +163,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						6200,
 						12,
 						'Silk',
-						'https://images.pexels.com/photos/5240606/pexels-photo-5240606.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.etsystatic.com/17819772/r/il/1a7da4/4082380570/il_794xN.4082380570_gtwv.jpg',
 						'Handwoven Sambalpuri ikat silk saree from Odisha. Features unique curvilinear patterns created using the double ikat technique. A masterpiece of craftsmanship for special occasions.',
 					],
 					[
@@ -171,7 +171,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3200,
 						18,
 						'Georgette',
-						'https://images.pexels.com/photos/13943614/pexels-photo-13943614.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/564x/1d/af/81/1daf810fda33d6d95c7ae2cbb8a0aefb.jpg',
 						'Lightweight georgette saree with traditional Bandhani (tie and dye) patterns. The vibrant colors and tiny dots create a mesmerizing effect. Perfect for festive occasions and celebrations.',
 					],
 					[
@@ -179,7 +179,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						4100,
 						10,
 						'Silk',
-						'https://images.pexels.com/photos/7107452/pexels-photo-7107452.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://5.imimg.com/data5/SELLER/Default/2021/5/EX/TP/IS/4016696/bhagalpuri-tussar-silk-saree-500x500.jpg',
 						'Elegant Bhagalpuri Tussar silk saree with digital prints of natural landscapes. The earthy tones and smooth texture make it perfect for everyday elegance and office wear.',
 					],
 					[
@@ -187,7 +187,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						3700,
 						15,
 						'Silk Cotton',
-						'https://images.pexels.com/photos/11054291/pexels-photo-11054291.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/originals/63/0b/9c/630b9c811a24f9577e3a53aa7ea797a4.jpg',
 						'Lightweight Maheshwari silk cotton blend saree featuring distinct reversible border. Named after the historic town in Madhya Pradesh, it combines comfort with traditional craftsmanship.',
 					],
 					[
@@ -195,7 +195,7 @@ db.run('DROP TABLE IF EXISTS products', (err) => {
 						2600,
 						12,
 						'Cotton',
-						'https://images.pexels.com/photos/5231000/pexels-photo-5231000.jpeg?auto=compress&cs=tinysrgb&w=800',
+						'https://i.pinimg.com/736x/50/82/38/508238a6a9d36a10f829ec5fad042b18.jpg',
 						'Traditional Narayanpet handloom cotton saree with temple border and chess board patterns on the pallu. The bright colors and simple designs make it perfect for casual and festive wear.',
 					],
 				]
