@@ -28,10 +28,17 @@ app.use(helmet())
 // CORS configuration
 app.use(
 	cors({
-		origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-		methods: ['GET', 'POST', 'PUT', 'DELETE'],
-		allowedHeaders: ['Content-Type'],
+		origin: true,
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		allowedHeaders: [
+			'Content-Type',
+			'Content-Length',
+			'Authorization',
+			'Accept',
+			'X-Requested-With',
+		],
 		credentials: true,
+		exposedHeaders: ['Content-Length', 'X-Total-Count', 'X-Total-Pages', 'X-Current-Page'],
 	})
 )
 
@@ -133,13 +140,33 @@ async function initializeDatabase() {
 }
 
 // API routes
-app.use('/api/products', productRoutes)
+app.use(
+	'/api/products',
+	(req, res, next) => {
+		console.log('Product route request received:', {
+			method: req.method,
+			url: req.originalUrl,
+			headers: req.headers,
+			body: req.body,
+			files: req.files,
+		})
+		next()
+	},
+	productRoutes
+)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/checkout', checkoutRoutes)
 
 // Health check endpoint
 app.get('/health', (req, res) => {
+	console.log('Health check request received')
 	res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
+// Test endpoint for CORS
+app.options('/api/products/admin', (req, res) => {
+	console.log('OPTIONS request received for /api/products/admin')
+	res.status(200).end()
 })
 
 // Debug endpoint to check image paths in database
