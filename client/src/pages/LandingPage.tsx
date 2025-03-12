@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import ProductCard from '../components/ProductCard'
 import { Product } from '../types'
@@ -17,7 +17,6 @@ import {
 	Grid,
 	Paper,
 	Container,
-	Divider,
 	Chip,
 } from '@mui/material'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
