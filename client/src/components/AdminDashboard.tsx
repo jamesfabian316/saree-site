@@ -13,6 +13,15 @@ import {
 	Typography,
 	Box,
 	FormHelperText,
+	Tooltip,
+	CircularProgress,
+	Fade,
+	Chip,
+	IconButton,
+	InputAdornment,
+	Skeleton,
+	Alert,
+	Snackbar,
 } from '@mui/material'
 import {
 	CloudUpload as CloudUploadIcon,
@@ -20,6 +29,9 @@ import {
 	Edit as EditIcon,
 	Delete as DeleteIcon,
 	Save as SaveIcon,
+	Sort as SortIcon,
+	FilterList as FilterIcon,
+	Search as SearchIcon,
 } from '@mui/icons-material'
 
 interface Product {
@@ -66,10 +78,19 @@ const AdminDashboard = () => {
 	const [message, setMessage] = useState('')
 	const [previewImage, setPreviewImage] = useState<string>()
 	const [selectedFile, setSelectedFile] = useState<File>()
-	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [products, setProducts] = useState<Product[]>([])
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-	const [isLoading, setIsLoading] = useState(false)
+
+	// Add sorting function
+	const [sortOrder, setSortOrder] = useState('asc')
+	const [filterCategory, setFilterCategory] = useState('')
+	const [searchQuery, setSearchQuery] = useState('')
+	const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false)
+	const [loadingStates, setLoadingStates] = useState({
+		products: true,
+		submit: false,
+		delete: null as number | null,
+	})
 
 	// Add statistics state
 	const [statistics, setStatistics] = useState({
@@ -80,7 +101,7 @@ const AdminDashboard = () => {
 	})
 
 	const fetchProducts = async () => {
-		setIsLoading(true)
+		setLoadingStates((prev) => ({ ...prev, products: true }))
 		try {
 			const response = await axios.get(`${config.API_URL}/api/products`)
 			console.log('Products fetched:', response.data) // Debug log
@@ -90,7 +111,7 @@ const AdminDashboard = () => {
 			console.error('Error fetching products:', error)
 			setMessage('Error loading products')
 		} finally {
-			setIsLoading(false)
+			setLoadingStates((prev) => ({ ...prev, products: false }))
 		}
 	}
 
@@ -147,6 +168,24 @@ const AdminDashboard = () => {
 		})
 	}, [products])
 
+	// Add sorting function
+	const sortProducts = (products: Product[]) => {
+		return [...products].sort((a, b) => {
+			return sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+		})
+	}
+
+	// Add filter function
+	const filterProducts = (products: Product[]) => {
+		return products.filter(
+			(product) =>
+				(!filterCategory || product.category === filterCategory) &&
+				(!searchQuery ||
+					product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+		)
+	}
+
 	const onSubmit = async (data: ProductForm) => {
 		console.log('Form submitted with data:', data)
 		console.log('Category from form data:', data.category)
@@ -154,19 +193,7 @@ const AdminDashboard = () => {
 		console.log('Current preview image:', previewImage)
 		console.log('Selected file:', selectedFile)
 
-		// Add test request
-		try {
-			console.log('Making test request...')
-			const testResponse = await axios.get(`${config.API_URL}/health`)
-			console.log('Test request successful:', testResponse.data)
-		} catch (error) {
-			console.error('Test request failed:', error)
-		}
-
-		// Debug the API URL
-		console.log('API URL:', `${config.API_URL}/api/products/admin`)
-
-		// Modified image validation
+		// Modified image validation - only require image for new products
 		if (!editingProduct && !selectedFile && !previewImage) {
 			console.log('Image validation failed:', {
 				editingProduct: !!editingProduct,
@@ -177,7 +204,7 @@ const AdminDashboard = () => {
 			return
 		}
 
-		setIsSubmitting(true)
+		setLoadingStates((prev) => ({ ...prev, submit: true }))
 		const formData = new FormData()
 
 		// Ensure all form data is properly formatted
@@ -202,57 +229,15 @@ const AdminDashboard = () => {
 			formData.append('keepExistingImage', 'true')
 		}
 
-		// Debug FormData contents
-		console.log('FormData entries:')
-		const formDataEntries = Array.from(formData.entries())
-		console.log('FormData has', formDataEntries.length, 'entries')
-		for (const [key, value] of formDataEntries) {
-			if (value instanceof File) {
-				console.log(`${key} (File):`, {
-					name: value.name,
-					type: value.type,
-					size: value.size,
-				})
-			} else {
-				console.log(`${key}:`, value)
-			}
-		}
-
 		try {
-			console.log('Starting product submission...')
-			// First try the test upload endpoint
-			console.log('Testing upload endpoint...')
+			let response
 
-			// Create a separate FormData for test upload
-			const testFormData = new FormData()
-			if (selectedFile) {
-				console.log('Preparing test upload with file:', {
-					name: selectedFile.name,
-					type: selectedFile.type,
-					size: selectedFile.size,
-				})
-
-				// Explicitly set the file name and type
-				const blob = new Blob([selectedFile], { type: selectedFile.type })
-				testFormData.append('image', blob, selectedFile.name)
-
-				// Log the test FormData contents
-				console.log('Test FormData entries:')
-				for (const [key, value] of testFormData.entries()) {
-					if (value instanceof Blob) {
-						console.log(`${key} (File):`, {
-							name: selectedFile.name,
-							type: value.type,
-							size: value.size,
-						})
-					} else {
-						console.log(`${key}:`, value)
-					}
-				}
-
-				const testUploadResponse = await axios.post(
-					`${config.API_URL}/api/products/test-upload`,
-					testFormData,
+			// If editing, use PUT endpoint
+			if (editingProduct) {
+				console.log('Updating existing product...')
+				response = await axios.put(
+					`${config.API_URL}/api/products/admin/${editingProduct.id}`,
+					formData,
 					{
 						headers: {
 							'Content-Type': 'multipart/form-data',
@@ -260,35 +245,57 @@ const AdminDashboard = () => {
 						onUploadProgress: (progressEvent) => {
 							const total = progressEvent.total || 0
 							const percentCompleted = Math.round((progressEvent.loaded * 100) / total)
-							console.log(`Test upload progress: ${percentCompleted}%`)
+							console.log(`Upload progress: ${percentCompleted}%`)
 						},
 					}
 				)
-				console.log('Test upload response:', testUploadResponse.data)
-
-				if (!testUploadResponse.data.success) {
-					throw new Error(`Test upload failed: ${testUploadResponse.data.message}`)
-				}
+				console.log('Product update response:', response.data)
+				setMessage(`Successfully updated "${editingProduct.name}"`)
 			} else {
-				throw new Error('No file selected for upload test')
+				// For new products, first test the upload
+				if (selectedFile) {
+					console.log('Testing upload for new product...')
+					const testFormData = new FormData()
+					const blob = new Blob([selectedFile], { type: selectedFile.type })
+					testFormData.append('image', blob, selectedFile.name)
+
+					const testUploadResponse = await axios.post(
+						`${config.API_URL}/api/products/test-upload`,
+						testFormData,
+						{
+							headers: {
+								'Content-Type': 'multipart/form-data',
+							},
+						}
+					)
+
+					if (!testUploadResponse.data.success) {
+						throw new Error(`Test upload failed: ${testUploadResponse.data.message}`)
+					}
+				}
+
+				// If test succeeds or no file to test, proceed with product creation
+				console.log('Creating new product...')
+				response = await axios.post(`${config.API_URL}/api/products/admin`, formData, {
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					},
+					onUploadProgress: (progressEvent) => {
+						const total = progressEvent.total || 0
+						const percentCompleted = Math.round((progressEvent.loaded * 100) / total)
+						console.log(`Upload progress: ${percentCompleted}%`)
+					},
+				})
+				console.log('Product creation response:', response.data)
+				setMessage(`Successfully added new product "${data.name}"`)
 			}
 
-			// If test succeeds, proceed with actual product creation
-			console.log('Proceeding with actual product creation...')
-			const response = await axios.post(`${config.API_URL}/api/products/admin`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-				onUploadProgress: (progressEvent) => {
-					const total = progressEvent.total || 0
-					const percentCompleted = Math.round((progressEvent.loaded * 100) / total)
-					console.log(`Upload progress: ${percentCompleted}%`)
-				},
-			})
-
-			console.log('Product creation response:', response.data)
-			setMessage('Product added successfully!')
-			await fetchProducts()
+			setShowSuccessSnackbar(true)
+			setEditingProduct(null) // Clear editing state
+			reset() // Reset form
+			setPreviewImage(undefined) // Clear preview
+			setSelectedFile(undefined) // Clear selected file
+			await fetchProducts() // Refresh product list
 		} catch (error) {
 			console.error('Error sending product data:', error)
 			if (axios.isAxiosError(error)) {
@@ -315,13 +322,14 @@ const AdminDashboard = () => {
 				setMessage('Unknown error occurred while adding product')
 			}
 		} finally {
-			setIsSubmitting(false)
+			setLoadingStates((prev) => ({ ...prev, submit: false }))
 		}
 	}
 
 	const handleDelete = async (id: number) => {
 		if (!window.confirm('Are you sure you want to delete this product?')) return
 
+		setLoadingStates((prev) => ({ ...prev, delete: id }))
 		try {
 			await axios.delete(`${config.API_URL}/api/products/admin/${id}`)
 			setMessage('Product deleted successfully!')
@@ -329,6 +337,8 @@ const AdminDashboard = () => {
 		} catch (error) {
 			setMessage('Error deleting product')
 			console.error(error)
+		} finally {
+			setLoadingStates((prev) => ({ ...prev, delete: null }))
 		}
 	}
 
@@ -346,20 +356,18 @@ const AdminDashboard = () => {
 			{/* Header Section with Statistics */}
 			<Paper
 				sx={{
-					p: 3,
-					mb: 3,
+					p: 2,
+					mb: 2,
 					borderRadius: 2,
 					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
 					background: '#ffffff',
 					border: '1px solid rgba(255, 77, 143, 0.1)',
 				}}
 			>
-				<Box
-					sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
-				>
+				<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 					<Box>
 						<Typography
-							variant='h4'
+							variant='h5'
 							sx={{
 								fontWeight: 'bold',
 								background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
@@ -367,50 +375,65 @@ const AdminDashboard = () => {
 								WebkitTextFillColor: 'transparent',
 								backgroundClip: 'text',
 								display: 'inline-block',
+								mb: 0.5,
 							}}
 						>
 							Admin Dashboard
 						</Typography>
-						<Typography variant='subtitle1' color='text.secondary'>
+						<Typography variant='body2' color='text.secondary'>
 							Manage your products and inventory
 						</Typography>
 					</Box>
-					<Box sx={{ display: 'flex', gap: 3 }}>
-						<Box sx={{ textAlign: 'center' }}>
-							<Typography variant='h5' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+					<Box sx={{ display: 'flex', gap: 2 }}>
+						<Box sx={{ textAlign: 'center', px: 2 }}>
+							<Typography variant='h6' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
 								{statistics.totalProducts}
 							</Typography>
-							<Typography variant='body2' color='text.secondary'>
+							<Typography variant='caption' color='text.secondary'>
 								Products
 							</Typography>
 						</Box>
-						<Box sx={{ textAlign: 'center' }}>
-							<Typography variant='h5' sx={{ fontWeight: 'bold', color: 'secondary.main' }}>
+						<Box sx={{ textAlign: 'center', px: 2 }}>
+							<Typography variant='h6' sx={{ fontWeight: 'bold', color: 'secondary.main' }}>
 								{statistics.totalCategories}
 							</Typography>
-							<Typography variant='body2' color='text.secondary'>
+							<Typography variant='caption' color='text.secondary'>
 								Categories
 							</Typography>
 						</Box>
-						<Box sx={{ textAlign: 'center' }}>
-							<Typography variant='h5' sx={{ fontWeight: 'bold', color: 'error.main' }}>
+						<Box sx={{ textAlign: 'center', px: 2 }}>
+							<Typography variant='h6' sx={{ fontWeight: 'bold', color: 'error.main' }}>
 								{statistics.lowStockProducts}
 							</Typography>
-							<Typography variant='body2' color='text.secondary'>
+							<Typography variant='caption' color='text.secondary'>
 								Low Stock
 							</Typography>
 						</Box>
-						<Box sx={{ textAlign: 'center' }}>
-							<Typography variant='h5' sx={{ fontWeight: 'bold', color: 'success.main' }}>
+						<Box sx={{ textAlign: 'center', px: 2 }}>
+							<Typography variant='h6' sx={{ fontWeight: 'bold', color: 'success.main' }}>
 								{statistics.discountedProducts}
 							</Typography>
-							<Typography variant='body2' color='text.secondary'>
+							<Typography variant='caption' color='text.secondary'>
 								On Discount
 							</Typography>
 						</Box>
 					</Box>
 				</Box>
 			</Paper>
+
+			{/* Success Snackbar */}
+			<Snackbar
+				open={showSuccessSnackbar}
+				autoHideDuration={3000}
+				onClose={() => setShowSuccessSnackbar(false)}
+				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+			>
+				<Alert severity='success' variant='filled'>
+					{editingProduct
+						? `Successfully updated "${editingProduct.name}"`
+						: 'Successfully added new product'}
+				</Alert>
+			</Snackbar>
 
 			{message && (
 				<Box
@@ -454,230 +477,249 @@ const AdminDashboard = () => {
 						background: '#ffffff',
 					}}
 				>
-					<Box
-						sx={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							mb: 3,
-							pb: 2,
-							borderBottom: '1px solid rgba(255, 77, 143, 0.2)',
-						}}
-					>
-						<Typography
-							variant='h5'
-							sx={{
-								fontWeight: 'bold',
-								background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-								WebkitBackgroundClip: 'text',
-								WebkitTextFillColor: 'transparent',
-								backgroundClip: 'text',
+					{/* Search and Filter Controls */}
+					<Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
+						<TextField
+							size='small'
+							placeholder='Search products...'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position='start'>
+										<SearchIcon />
+									</InputAdornment>
+								),
 							}}
-						>
-							Product List
-						</Typography>
-						<Typography variant='subtitle2' color='text.secondary'>
-							{products.length} items
-						</Typography>
+							sx={{ flex: 1 }}
+						/>
+						<Tooltip title='Sort products'>
+							<IconButton
+								size='small'
+								onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+							>
+								<SortIcon />
+							</IconButton>
+						</Tooltip>
+						<Tooltip title='Filter by category'>
+							<IconButton size='small' onClick={() => setFilterCategory('')}>
+								<FilterIcon />
+							</IconButton>
+						</Tooltip>
 					</Box>
 
+					{/* Active Filters */}
+					{(filterCategory || searchQuery) && (
+						<Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+							{filterCategory && (
+								<Chip
+									label={`Category: ${filterCategory}`}
+									onDelete={() => setFilterCategory('')}
+									size='small'
+								/>
+							)}
+							{searchQuery && (
+								<Chip
+									label={`Search: ${searchQuery}`}
+									onDelete={() => setSearchQuery('')}
+									size='small'
+								/>
+							)}
+						</Box>
+					)}
+
 					<Box sx={{ overflow: 'auto', flex: 1 }}>
-						{isLoading ? (
-							<Typography>Loading products...</Typography>
-						) : products.length === 0 ? (
-							<Typography>No products found</Typography>
+						{loadingStates.products ? (
+							// Loading skeletons
+							[...Array(3)].map((_, i) => (
+								<Box key={i} sx={{ mb: 2 }}>
+									<Skeleton variant='rectangular' height={100} sx={{ borderRadius: 2 }} />
+								</Box>
+							))
+						) : filterProducts(sortProducts(products)).length === 0 ? (
+							<Typography sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
+								No products found
+							</Typography>
 						) : (
-							products.map((product) => (
-								<Box
-									key={product.id}
-									sx={{
-										mb: 3,
-										p: 3,
-										border: '1px solid rgba(255, 77, 143, 0.2)',
-										borderRadius: 2,
-										boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-										transition: 'all 0.3s ease',
-										'&:hover': {
-											boxShadow: '0 4px 12px rgba(255, 77, 143, 0.15)',
-											borderColor: 'rgba(255, 77, 143, 0.4)',
-											transform: 'translateY(-2px)',
-										},
-									}}
-								>
-									<Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-										<Box
-											sx={{
-												width: 80,
-												height: 80,
-												borderRadius: 3,
-												overflow: 'hidden',
-												boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-												border: '1px solid rgba(255, 77, 143, 0.15)',
-												position: 'relative',
-												transition: 'all 0.3s ease',
-												'&:hover': {
-													transform: 'scale(1.05)',
-													boxShadow: '0 6px 12px rgba(255, 77, 143, 0.2)',
-												},
-												'&::before': {
-													content: '""',
-													position: 'absolute',
-													top: 0,
-													left: 0,
-													width: '100%',
-													height: '100%',
-													background:
-														'linear-gradient(135deg, rgba(255,77,143,0.1) 0%, rgba(156,39,176,0.1) 100%)',
-													opacity: 0,
-													transition: 'opacity 0.3s ease',
-													zIndex: 1,
-													pointerEvents: 'none',
-												},
-												'&:hover::before': {
-													opacity: 0.5,
-												},
-											}}
-										>
-											<img
-												src={product.image}
-												alt={product.name}
-												style={{
-													width: '100%',
-													height: '100%',
-													objectFit: 'cover',
-													transition: 'transform 0.5s ease',
-												}}
-												onMouseOver={(e) => {
-													e.currentTarget.style.transform = 'scale(1.1)'
-												}}
-												onMouseOut={(e) => {
-													e.currentTarget.style.transform = 'scale(1)'
-												}}
-											/>
-										</Box>
-										<Box sx={{ flex: 1 }}>
-											<Typography
-												variant='h6'
+							filterProducts(sortProducts(products)).map((product) => (
+								<Fade in key={product.id}>
+									<Box
+										sx={{
+											mb: 2,
+											p: 2,
+											borderRadius: 2,
+											border: '1px solid',
+											borderColor: 'divider',
+											transition: 'all 0.3s ease',
+											'&:hover': {
+												transform: 'translateY(-2px)',
+												boxShadow: 2,
+											},
+										}}
+									>
+										<Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+											<Box
 												sx={{
-													fontWeight: 600,
-													mb: 0.5,
-													color: 'text.primary',
+													width: 80,
+													height: 80,
+													borderRadius: 3,
+													overflow: 'hidden',
+													boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+													border: '1px solid rgba(255, 77, 143, 0.15)',
+													position: 'relative',
+													transition: 'all 0.3s ease',
+													'&:hover': {
+														transform: 'scale(1.05)',
+														boxShadow: '0 6px 12px rgba(255, 77, 143, 0.2)',
+													},
+													'&::before': {
+														content: '""',
+														position: 'absolute',
+														top: 0,
+														left: 0,
+														width: '100%',
+														height: '100%',
+														background:
+															'linear-gradient(135deg, rgba(255,77,143,0.1) 0%, rgba(156,39,176,0.1) 100%)',
+														opacity: 0,
+														transition: 'opacity 0.3s ease',
+														zIndex: 1,
+														pointerEvents: 'none',
+													},
+													'&:hover::before': {
+														opacity: 0.5,
+													},
 												}}
 											>
-												{product.name}
-											</Typography>
-											<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
+												<img
+													src={product.image}
+													alt={product.name}
+													style={{
+														width: '100%',
+														height: '100%',
+														objectFit: 'cover',
+														transition: 'transform 0.5s ease',
+													}}
+													onMouseOver={(e) => {
+														e.currentTarget.style.transform = 'scale(1.1)'
+													}}
+													onMouseOut={(e) => {
+														e.currentTarget.style.transform = 'scale(1)'
+													}}
+												/>
+											</Box>
+											<Box sx={{ flex: 1 }}>
 												<Typography
-													variant='body2'
+													variant='h6'
 													sx={{
-														color: 'primary.main',
-														bgcolor: 'rgba(255, 77, 143, 0.08)',
-														px: 1,
-														py: 0.5,
-														borderRadius: 1,
-														display: 'inline-flex',
-														alignItems: 'center',
+														fontWeight: 600,
+														mb: 0.5,
+														color: 'text.primary',
 													}}
 												>
-													{product.category}
+													{product.name}
 												</Typography>
+												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
+													<Typography
+														variant='body2'
+														sx={{
+															color: 'primary.main',
+															bgcolor: 'rgba(255, 77, 143, 0.08)',
+															px: 1,
+															py: 0.5,
+															borderRadius: 1,
+															display: 'inline-flex',
+															alignItems: 'center',
+														}}
+													>
+														{product.category}
+													</Typography>
+													<Typography
+														variant='body2'
+														sx={{
+															fontWeight: 'bold',
+															color: product.discount > 0 ? 'success.main' : 'text.primary',
+														}}
+													>
+														₹{product.price.toFixed(2)}
+														{product.discount > 0 && (
+															<Typography
+																component='span'
+																variant='caption'
+																sx={{
+																	ml: 1,
+																	color: 'success.main',
+																}}
+															>
+																(-{product.discount}%)
+															</Typography>
+														)}
+													</Typography>
+													<Typography
+														variant='body2'
+														sx={{
+															color: product.stock > 0 ? 'success.main' : 'error.main',
+															bgcolor:
+																product.stock > 0
+																	? 'rgba(76, 175, 80, 0.08)'
+																	: 'rgba(211, 47, 47, 0.08)',
+															px: 1,
+															py: 0.5,
+															borderRadius: 1,
+															display: 'inline-flex',
+															alignItems: 'center',
+														}}
+													>
+														{product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
+													</Typography>
+												</Box>
 												<Typography
 													variant='body2'
+													color='text.secondary'
 													sx={{
-														fontWeight: 'bold',
-														color: product.discount > 0 ? 'success.main' : 'text.primary',
+														display: '-webkit-box',
+														WebkitLineClamp: 2,
+														WebkitBoxOrient: 'vertical',
+														overflow: 'hidden',
+														textOverflow: 'ellipsis',
+														maxWidth: '100%',
 													}}
 												>
-													₹{product.price.toFixed(2)}
-													{product.discount > 0 && (
-														<Typography
-															component='span'
-															variant='caption'
-															sx={{
-																ml: 1,
-																color: 'success.main',
-															}}
-														>
-															(-{product.discount}%)
-														</Typography>
-													)}
-												</Typography>
-												<Typography
-													variant='body2'
-													sx={{
-														color: product.stock > 0 ? 'success.main' : 'error.main',
-														bgcolor:
-															product.stock > 0
-																? 'rgba(76, 175, 80, 0.08)'
-																: 'rgba(211, 47, 47, 0.08)',
-														px: 1,
-														py: 0.5,
-														borderRadius: 1,
-														display: 'inline-flex',
-														alignItems: 'center',
-													}}
-												>
-													{product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
+													{product.description}
 												</Typography>
 											</Box>
-											<Typography
-												variant='body2'
-												color='text.secondary'
-												sx={{
-													display: '-webkit-box',
-													WebkitLineClamp: 2,
-													WebkitBoxOrient: 'vertical',
-													overflow: 'hidden',
-													textOverflow: 'ellipsis',
-													maxWidth: '100%',
-												}}
-											>
-												{product.description}
-											</Typography>
-										</Box>
-										<Box>
-											<Button
-												size='small'
-												onClick={() => {
-													console.log('Edit button clicked for product:', product)
-													console.log('Product category:', product.category)
-													console.log('Available categories:', AVAILABLE_CATEGORIES)
-													setEditingProduct(product)
-												}}
-												sx={{
-													mr: 1,
-													borderRadius: 4,
-													px: 2,
-													color: 'primary.main',
-													borderColor: 'primary.main',
-													'&:hover': {
-														backgroundColor: 'rgba(255, 77, 143, 0.08)',
-													},
-												}}
-												variant='outlined'
-												startIcon={<EditIcon fontSize='small' />}
-											>
-												Edit
-											</Button>
-											<Button
-												size='small'
-												color='error'
-												onClick={() => handleDelete(product.id)}
-												sx={{
-													borderRadius: 4,
-													px: 2,
-													'&:hover': {
-														backgroundColor: 'rgba(211, 47, 47, 0.08)',
-													},
-												}}
-												variant='outlined'
-												startIcon={<DeleteIcon fontSize='small' />}
-											>
-												Delete
-											</Button>
+											<Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+												<Tooltip title='Edit product'>
+													<Button
+														size='small'
+														onClick={() => setEditingProduct(product)}
+														startIcon={<EditIcon />}
+														sx={{ mr: 1 }}
+													>
+														Edit
+													</Button>
+												</Tooltip>
+												<Tooltip title='Delete product'>
+													<Button
+														size='small'
+														color='error'
+														onClick={() => handleDelete(product.id)}
+														startIcon={
+															loadingStates.delete === product.id ? (
+																<CircularProgress size={20} />
+															) : (
+																<DeleteIcon />
+															)
+														}
+														disabled={loadingStates.delete === product.id}
+													>
+														Delete
+													</Button>
+												</Tooltip>
+											</Box>
 										</Box>
 									</Box>
-								</Box>
+								</Fade>
 							))
 						)}
 					</Box>
@@ -728,82 +770,79 @@ const AdminDashboard = () => {
 						key={editingProduct ? `edit-${editingProduct.id}` : 'add-new'}
 						style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
 					>
-						<Box sx={{ display: 'flex', gap: 2 }}>
-							<TextField
-								label='Product Name'
-								{...register('name')}
-								required
-								sx={{ flex: 2 }}
-								size='small'
-							/>
-							<FormControl sx={{ flex: 1 }} size='small'>
-								<InputLabel>Category</InputLabel>
-								<Controller
-									name='category'
-									control={control}
-									defaultValue=''
-									rules={{ required: 'Category is required' }}
-									render={({ field }) => (
-										<Select {...field} label='Category' error={!!errors.category}>
-											{AVAILABLE_CATEGORIES.map((category) => (
-												<MenuItem key={category} value={category}>
-													{category}
-												</MenuItem>
-											))}
-										</Select>
-									)}
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+							<TextField label='Product Name' {...register('name')} required size='small' />
+
+							<Box sx={{ display: 'flex', gap: 2 }}>
+								<TextField
+									label='Price'
+									type='number'
+									size='small'
+									inputProps={{ min: 0, step: 0.01 }}
+									{...register('price', { valueAsNumber: true, min: 0 })}
+									required
+									error={!!errors.price}
+									helperText={errors.price?.message}
+									sx={{ flex: 1 }}
 								/>
-								{errors.category && (
-									<FormHelperText error>{errors.category.message}</FormHelperText>
-								)}
-							</FormControl>
-						</Box>
 
-						<Box sx={{ display: 'flex', gap: 2 }}>
-							<TextField
-								label='Price'
-								type='number'
-								size='small'
-								inputProps={{ min: 0, step: 0.01 }}
-								{...register('price', { valueAsNumber: true, min: 0 })}
-								required
-								error={!!errors.price}
-								helperText={errors.price?.message}
-								sx={{ flex: 1 }}
-							/>
+								<TextField
+									label='Discount (%)'
+									type='number'
+									size='small'
+									inputProps={{ min: 0, max: 100 }}
+									{...register('discount', {
+										valueAsNumber: true,
+										min: 0,
+										max: 100,
+									})}
+									error={!!errors.discount}
+									helperText={errors.discount?.message}
+									sx={{ flex: 1 }}
+								/>
+							</Box>
 
-							<TextField
-								label='Discount (%)'
-								type='number'
-								size='small'
-								inputProps={{ min: 0, max: 100 }}
-								{...register('discount', {
-									valueAsNumber: true,
-									min: 0,
-									max: 100,
-								})}
-								error={!!errors.discount}
-								helperText={errors.discount?.message}
-								sx={{ flex: 1 }}
-							/>
+							<Box sx={{ display: 'flex', gap: 2 }}>
+								<FormControl sx={{ flex: 1 }} size='small'>
+									<InputLabel>Category</InputLabel>
+									<Controller
+										name='category'
+										control={control}
+										defaultValue=''
+										rules={{ required: 'Category is required' }}
+										render={({ field }) => (
+											<Select {...field} label='Category' error={!!errors.category}>
+												{AVAILABLE_CATEGORIES.map((category) => (
+													<MenuItem key={category} value={category}>
+														{category}
+													</MenuItem>
+												))}
+											</Select>
+										)}
+									/>
+									{errors.category && (
+										<FormHelperText error>{errors.category.message}</FormHelperText>
+									)}
+								</FormControl>
 
-							<TextField
-								label='Stock Quantity'
-								type='number'
-								size='small'
-								{...register('stock', {
-									valueAsNumber: true,
-									min: 0,
-									required: true,
-								})}
-								required
-								error={!!errors.stock}
-								helperText={errors.stock?.message}
-								InputProps={{
-									inputProps: { min: 0 },
-								}}
-								sx={{ flex: 1 }}
-							/>
+								<TextField
+									label='Stock Quantity'
+									type='number'
+									size='small'
+									{...register('stock', {
+										valueAsNumber: true,
+										min: 0,
+										required: true,
+									})}
+									required
+									error={!!errors.stock}
+									helperText={errors.stock?.message}
+									InputProps={{
+										inputProps: { min: 0 },
+									}}
+									sx={{ flex: 1 }}
+								/>
+							</Box>
 						</Box>
 
 						<TextField
@@ -909,7 +948,15 @@ const AdminDashboard = () => {
 								variant='contained'
 								color='primary'
 								size='small'
-								startIcon={isSubmitting ? null : editingProduct ? <SaveIcon /> : <AddIcon />}
+								startIcon={
+									loadingStates.submit ? (
+										<CircularProgress size={20} />
+									) : editingProduct ? (
+										<SaveIcon />
+									) : (
+										<AddIcon />
+									)
+								}
 								sx={{
 									borderRadius: 2,
 									px: 3,
@@ -919,9 +966,13 @@ const AdminDashboard = () => {
 										boxShadow: '0 6px 12px rgba(255, 77, 143, 0.3)',
 									},
 								}}
-								disabled={isSubmitting}
+								disabled={loadingStates.submit}
 							>
-								{isSubmitting ? 'Submitting...' : editingProduct ? 'Update Product' : 'Add Product'}
+								{loadingStates.submit
+									? 'Saving...'
+									: editingProduct
+									? 'Update Product'
+									: 'Add Product'}
 							</Button>
 
 							{editingProduct && (
@@ -937,7 +988,7 @@ const AdminDashboard = () => {
 										px: 3,
 										py: 1,
 									}}
-									disabled={isSubmitting}
+									disabled={loadingStates.submit}
 								>
 									Cancel Edit
 								</Button>
