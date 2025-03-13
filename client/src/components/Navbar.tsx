@@ -10,13 +10,13 @@ import {
 	IconButton,
 	useScrollTrigger,
 	Slide,
-	Avatar,
+	useTheme,
 } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import HomeIcon from '@mui/icons-material/Home'
 import FavoriteIcon from '@mui/icons-material/Favorite'
-import { alpha } from '@mui/material/styles'
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 
 interface NavbarProps {
 	cartCount: number
@@ -36,16 +36,11 @@ function HideOnScroll(props: { children: React.ReactElement }) {
 }
 
 const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
+	const theme = useTheme()
+
 	return (
 		<HideOnScroll>
-			<AppBar
-				position='sticky'
-				sx={{
-					bgcolor: 'white',
-					borderBottom: '1px solid rgba(255, 77, 143, 0.1)',
-				}}
-				elevation={0}
-			>
+			<AppBar position='sticky'>
 				<Container maxWidth='lg'>
 					<Toolbar
 						disableGutters
@@ -67,11 +62,7 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 								sx={{
 									textDecoration: 'none',
 									fontWeight: 700,
-									background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-									WebkitBackgroundClip: 'text',
-									WebkitTextFillColor: 'transparent',
-									backgroundClip: 'text',
-									textFillColor: 'transparent',
+									color: 'primary.main',
 									display: 'flex',
 									alignItems: 'center',
 									letterSpacing: '-0.5px',
@@ -85,15 +76,15 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 										transform: 'rotate(-5deg)',
 									}}
 								>
-									<FavoriteIcon
+									<LocalShippingIcon
 										fontSize='small'
 										sx={{
-											color: '#FF4D8F',
+											color: 'primary.main',
 											fontSize: '1.2rem',
 										}}
 									/>
 								</Box>
-								Saree Elegance
+								Textile Hub
 							</Typography>
 						</Box>
 
@@ -107,14 +98,10 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 							<Button
 								component={RouterLink}
 								to='/'
-								color='inherit'
+								color='primary'
 								sx={{
-									color: 'text.primary',
 									fontWeight: 500,
 									display: { xs: 'none', sm: 'flex' },
-									'&:hover': {
-										color: 'primary.main',
-									},
 								}}
 								startIcon={<HomeIcon />}
 							>
@@ -124,21 +111,17 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 							<IconButton
 								component={RouterLink}
 								to='/wishlist'
+								color='primary'
 								sx={{
-									position: 'relative',
-									color: wishlistCount > 0 ? 'error.main' : 'text.secondary',
-									transition: 'all 0.3s ease',
-									'&:hover': {
-										transform: 'translateY(-3px)',
-										bgcolor: alpha('#FF4D8F', 0.08),
-									},
+									opacity: wishlistCount > 0 ? 1 : 0.6,
 								}}
 							>
 								<Badge
 									badgeContent={wishlistCount}
-									color='error'
 									sx={{
 										'& .MuiBadge-badge': {
+											bgcolor: 'primary.main',
+											color: 'primary.contrastText',
 											fontWeight: 'bold',
 											fontSize: '0.7rem',
 										},
@@ -151,21 +134,17 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 							<IconButton
 								component={RouterLink}
 								to='/cart'
+								color='primary'
 								sx={{
-									position: 'relative',
-									color: cartCount > 0 ? 'primary.main' : 'text.secondary',
-									transition: 'all 0.3s ease',
-									'&:hover': {
-										transform: 'translateY(-3px)',
-										bgcolor: alpha('#FF4D8F', 0.08),
-									},
+									opacity: cartCount > 0 ? 1 : 0.6,
 								}}
 							>
 								<Badge
 									badgeContent={cartCount}
-									color='primary'
 									sx={{
 										'& .MuiBadge-badge': {
+											bgcolor: 'primary.main',
+											color: 'primary.contrastText',
 											fontWeight: 'bold',
 											fontSize: '0.7rem',
 										},
@@ -175,40 +154,9 @@ const Navbar = ({ cartCount, wishlistCount }: NavbarProps) => {
 								</Badge>
 							</IconButton>
 
-							<IconButton
-								component={RouterLink}
-								to='/admin'
-								color='inherit'
-								sx={{
-									color: 'secondary.main',
-									transition: 'all 0.3s ease',
-									'&:hover': {
-										transform: 'translateY(-3px)',
-										bgcolor: alpha('#9C27B0', 0.08),
-									},
-								}}
-							>
+							<IconButton component={RouterLink} to='/admin' color='primary'>
 								<AdminPanelSettingsIcon />
 							</IconButton>
-
-							<Avatar
-								sx={{
-									width: 32,
-									height: 32,
-									bgcolor: '#FFF9FC',
-									border: '2px solid #FF4D8F',
-									color: '#FF4D8F',
-									fontWeight: 'bold',
-									fontSize: '0.9rem',
-									display: { xs: 'none', sm: 'flex' },
-									cursor: 'pointer',
-									'&:hover': {
-										bgcolor: 'rgba(255, 77, 143, 0.1)',
-									},
-								}}
-							>
-								J
-							</Avatar>
 						</Box>
 					</Toolbar>
 				</Container>

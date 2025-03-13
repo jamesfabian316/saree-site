@@ -14,6 +14,7 @@ import { Product } from '../types'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
+import { alpha } from '@mui/material/styles'
 
 interface CartPageProps {
 	cartItems: Product[]
@@ -102,8 +103,9 @@ const CartPage = ({
 						py: 6,
 						px: 4,
 						borderRadius: 4,
-						background: 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,249,252,1) 100%)',
-						border: '1px dashed rgba(255, 77, 143, 0.3)',
+						bgcolor: 'background.paper',
+						border: '1px dashed',
+						borderColor: 'divider',
 						position: 'relative',
 						overflow: 'hidden',
 						'&::before': {
@@ -113,8 +115,10 @@ const CartPage = ({
 							left: 0,
 							right: 0,
 							height: '5px',
-							background:
-								'linear-gradient(90deg, rgba(255,77,143,0) 0%, rgba(255,77,143,0.3) 50%, rgba(255,77,143,0) 100%)',
+							background: (theme) => `linear-gradient(90deg, 
+								${alpha(theme.palette.primary.main, 0)} 0%, 
+								${alpha(theme.palette.primary.main, 0.3)} 50%, 
+								${alpha(theme.palette.primary.main, 0)} 100%)`,
 						},
 					}}
 				>
@@ -123,7 +127,7 @@ const CartPage = ({
 							width: 80,
 							height: 80,
 							borderRadius: '50%',
-							bgcolor: 'rgba(255, 77, 143, 0.08)',
+							bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
@@ -131,7 +135,12 @@ const CartPage = ({
 							mb: 3,
 						}}
 					>
-						<ShoppingCartIcon sx={{ fontSize: 40, color: 'rgba(255, 77, 143, 0.7)' }} />
+						<ShoppingCartIcon
+							sx={{
+								fontSize: 40,
+								color: (theme) => alpha(theme.palette.primary.main, 0.7),
+							}}
+						/>
 					</Box>
 
 					<Typography variant='h6' color='text.secondary' gutterBottom>

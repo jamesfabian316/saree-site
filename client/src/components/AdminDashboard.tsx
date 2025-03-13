@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import axios from 'axios'
 import { config } from '../config'
@@ -16,8 +16,6 @@ import {
 	Tooltip,
 	CircularProgress,
 	Fade,
-	Chip,
-	IconButton,
 	InputAdornment,
 	Skeleton,
 	Alert,
@@ -29,10 +27,11 @@ import {
 	Edit as EditIcon,
 	Delete as DeleteIcon,
 	Save as SaveIcon,
-	Sort as SortIcon,
-	FilterList as FilterIcon,
 	Search as SearchIcon,
 } from '@mui/icons-material'
+import { alpha } from '@mui/material/styles'
+import { FixedSizeList as List } from 'react-window'
+import debounce from 'lodash/debounce'
 
 interface Product {
 	id: number
@@ -58,6 +57,190 @@ interface ProductForm {
 // Define the categories available in the application
 const AVAILABLE_CATEGORIES = ['Silk', 'Cotton', 'Silk Cotton', 'Linen']
 
+interface ProductListItemProps {
+	index: number
+	style: React.CSSProperties
+	data: {
+		products: Product[]
+		getImageUrl: (image: string) => string
+		setEditingProduct: (product: Product) => void
+		handleDelete: (id: number) => void
+		loadingStates: {
+			delete: number | null
+		}
+	}
+}
+
+const ProductListItem = ({ index, style, data }: ProductListItemProps) => {
+	const { products, getImageUrl, setEditingProduct, handleDelete, loadingStates } = data
+	const product = products[index]
+	return (
+		<div style={style}>
+			<Fade in timeout={300}>
+				<Box
+					sx={{
+						mb: 2,
+						p: 2,
+						borderRadius: 2,
+						boxShadow: (theme) => `0 4px 8px ${alpha(theme.palette.common.black, 0.1)}`,
+						border: '1px solid',
+						borderColor: 'divider',
+						bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+						backdropFilter: 'blur(8px)',
+						position: 'relative',
+						transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+						'&:hover': {
+							transform: 'translateY(-2px)',
+							boxShadow: (theme) => `0 6px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+						},
+					}}
+				>
+					<Box
+						sx={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 3,
+							position: 'relative',
+							zIndex: 1,
+							outline: '2px solid rgba(255, 0, 0, 0.1)',
+						}}
+					>
+						<Box
+							sx={{
+								width: 80,
+								height: 80,
+								borderRadius: 3,
+								overflow: 'hidden',
+								position: 'relative',
+								backgroundColor: '#f0f0f0',
+								border: '1px solid #ddd',
+							}}
+						>
+							<img
+								src={getImageUrl(product.image)}
+								alt={product.name}
+								loading='lazy'
+								onError={(e) => {
+									const img = e.currentTarget
+									img.src = `${config.API_URL}/images/placeholder.jpg`
+								}}
+								style={{
+									width: '100%',
+									height: '100%',
+									objectFit: 'cover',
+									backgroundColor: 'rgba(0, 0, 0, 0.05)',
+								}}
+							/>
+						</Box>
+						<Box sx={{ flex: 1 }}>
+							<Typography
+								variant='h6'
+								sx={{
+									fontWeight: 600,
+									mb: 0.5,
+									color: 'text.primary',
+								}}
+							>
+								{product.name}
+							</Typography>
+							<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
+								<Typography
+									variant='body2'
+									sx={{
+										color: 'primary.main',
+										bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+										px: 1,
+										py: 0.5,
+										borderRadius: 1,
+										display: 'inline-flex',
+										alignItems: 'center',
+									}}
+								>
+									{product.category}
+								</Typography>
+								<Typography
+									variant='body2'
+									sx={{
+										fontWeight: 'bold',
+										color: product.discount > 0 ? 'success.main' : 'text.primary',
+									}}
+								>
+									₹{product.price.toFixed(2)}
+									{product.discount > 0 && (
+										<Typography
+											component='span'
+											variant='caption'
+											sx={{
+												ml: 1,
+												color: 'success.main',
+											}}
+										>
+											(-{product.discount}%)
+										</Typography>
+									)}
+								</Typography>
+								<Typography
+									variant='body2'
+									sx={{
+										color: product.stock > 0 ? 'success.main' : 'error.main',
+										bgcolor: (theme) =>
+											alpha(theme.palette[product.stock > 0 ? 'success' : 'error'].main, 0.08),
+									}}
+								>
+									{product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
+								</Typography>
+							</Box>
+							<Typography
+								variant='body2'
+								color='text.secondary'
+								sx={{
+									display: '-webkit-box',
+									WebkitLineClamp: 2,
+									WebkitBoxOrient: 'vertical',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									maxWidth: '100%',
+								}}
+							>
+								{product.description}
+							</Typography>
+						</Box>
+						<Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+							<Tooltip title='Edit product'>
+								<Button
+									size='small'
+									onClick={() => setEditingProduct(product)}
+									startIcon={<EditIcon />}
+									sx={{ mr: 1 }}
+								>
+									Edit
+								</Button>
+							</Tooltip>
+							<Tooltip title='Delete product'>
+								<Button
+									size='small'
+									color='error'
+									onClick={() => handleDelete(product.id)}
+									startIcon={
+										loadingStates.delete === product.id ? (
+											<CircularProgress size={20} />
+										) : (
+											<DeleteIcon />
+										)
+									}
+									disabled={loadingStates.delete === product.id}
+								>
+									Delete
+								</Button>
+							</Tooltip>
+						</Box>
+					</Box>
+				</Box>
+			</Fade>
+		</div>
+	)
+}
+
 const AdminDashboard = () => {
 	const {
 		register,
@@ -81,17 +264,6 @@ const AdminDashboard = () => {
 	const [products, setProducts] = useState<Product[]>([])
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
-	// Add sorting function
-	const [sortOrder, setSortOrder] = useState('asc')
-	const [filterCategory, setFilterCategory] = useState('')
-	const [searchQuery, setSearchQuery] = useState('')
-	const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false)
-	const [loadingStates, setLoadingStates] = useState({
-		products: true,
-		submit: false,
-		delete: null as number | null,
-	})
-
 	// Add statistics state
 	const [statistics, setStatistics] = useState({
 		totalProducts: 0,
@@ -99,6 +271,30 @@ const AdminDashboard = () => {
 		lowStockProducts: 0,
 		discountedProducts: 0,
 	})
+
+	const [searchQuery, setSearchQuery] = useState('')
+	const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false)
+	const [loadingStates, setLoadingStates] = useState({
+		products: true,
+		submit: false,
+		delete: null as number | null,
+	})
+	const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+
+	// Create a debounced search function
+	const debouncedSetSearch = useCallback(
+		debounce((value: string) => {
+			setDebouncedSearchQuery(value)
+		}, 300),
+		[]
+	)
+
+	// Update the search handler
+	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value
+		setSearchQuery(value)
+		debouncedSetSearch(value)
+	}
 
 	const fetchProducts = async () => {
 		setLoadingStates((prev) => ({ ...prev, products: true }))
@@ -168,22 +364,38 @@ const AdminDashboard = () => {
 		})
 	}, [products])
 
-	// Add sorting function
-	const sortProducts = (products: Product[]) => {
-		return [...products].sort((a, b) => {
-			return sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-		})
-	}
+	// Update the searchProducts function to use debouncedSearchQuery
+	const searchProducts = (products: Product[]) => {
+		if (!debouncedSearchQuery) return products
 
-	// Add filter function
-	const filterProducts = (products: Product[]) => {
 		return products.filter(
 			(product) =>
-				(!filterCategory || product.category === filterCategory) &&
-				(!searchQuery ||
-					product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+				product.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+				product.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
 		)
+	}
+
+	// Add this function to construct image URLs
+	const getImageUrl = (imagePath: string) => {
+		if (!imagePath) {
+			console.log('No image path provided, using placeholder')
+			return `${config.API_URL}/images/placeholder.jpg`
+		}
+
+		console.log('Original image path:', imagePath)
+
+		try {
+			// If it's already a full URL, return it
+			new URL(imagePath)
+			console.log('Valid URL detected:', imagePath)
+			return imagePath
+		} catch {
+			// If it's a relative path, construct the full URL
+			const cleanPath = imagePath.replace(/^\/images\//, '').replace(/^images\//, '')
+			const fullUrl = `${config.API_URL}/images/${cleanPath}`
+			console.log('Constructed URL:', fullUrl)
+			return fullUrl
+		}
 	}
 
 	const onSubmit = async (data: ProductForm) => {
@@ -350,7 +562,11 @@ const AdminDashboard = () => {
 				display: 'flex',
 				flexDirection: 'column',
 				overflow: 'hidden',
-				backgroundColor: '#f5f5f5',
+				bgcolor: 'background.default',
+				borderRadius: 3,
+				boxShadow: (theme) => `0 4px 20px ${alpha(theme.palette.common.black, 0.08)}`,
+				border: '1px solid',
+				borderColor: 'divider',
 			}}
 		>
 			{/* Header Section with Statistics */}
@@ -359,9 +575,10 @@ const AdminDashboard = () => {
 					p: 2,
 					mb: 2,
 					borderRadius: 2,
-					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-					background: '#ffffff',
-					border: '1px solid rgba(255, 77, 143, 0.1)',
+					boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
+					bgcolor: 'background.paper',
+					border: '1px solid',
+					borderColor: 'divider',
 				}}
 			>
 				<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -370,11 +587,7 @@ const AdminDashboard = () => {
 							variant='h5'
 							sx={{
 								fontWeight: 'bold',
-								background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-								WebkitBackgroundClip: 'text',
-								WebkitTextFillColor: 'transparent',
-								backgroundClip: 'text',
-								display: 'inline-block',
+								color: 'primary.main',
 								mb: 0.5,
 							}}
 						>
@@ -438,16 +651,17 @@ const AdminDashboard = () => {
 			{message && (
 				<Box
 					sx={{
-						mb: 3,
 						p: 2,
+						mb: 2,
 						borderRadius: 2,
-						backgroundColor: message.includes('Error')
-							? 'rgba(211, 47, 47, 0.08)'
-							: 'rgba(76, 175, 80, 0.08)',
+						backgroundColor: (theme) =>
+							alpha(theme.palette[message.includes('Error') ? 'error' : 'success'].main, 0.08),
 						color: message.includes('Error') ? 'error.main' : 'success.main',
-						border: `1px solid ${
-							message.includes('Error') ? 'rgba(211, 47, 47, 0.2)' : 'rgba(76, 175, 80, 0.2)'
-						}`,
+						border: (theme) =>
+							`1px solid ${alpha(
+								theme.palette[message.includes('Error') ? 'error' : 'success'].main,
+								0.2
+							)}`,
 					}}
 				>
 					<Typography>{message}</Typography>
@@ -468,13 +682,14 @@ const AdminDashboard = () => {
 					sx={{
 						p: 3,
 						borderRadius: 2,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+						boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
 						flex: { xs: '1 1 100%', md: '0 0 40%' },
 						display: 'flex',
 						flexDirection: 'column',
 						overflow: 'hidden',
-						border: '1px solid rgba(255, 77, 143, 0.1)',
-						background: '#ffffff',
+						border: '1px solid',
+						borderColor: 'divider',
+						bgcolor: 'background.paper',
 					}}
 				>
 					{/* Search and Filter Controls */}
@@ -483,7 +698,7 @@ const AdminDashboard = () => {
 							size='small'
 							placeholder='Search products...'
 							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
+							onChange={handleSearch}
 							InputProps={{
 								startAdornment: (
 									<InputAdornment position='start'>
@@ -493,40 +708,7 @@ const AdminDashboard = () => {
 							}}
 							sx={{ flex: 1 }}
 						/>
-						<Tooltip title='Sort products'>
-							<IconButton
-								size='small'
-								onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-							>
-								<SortIcon />
-							</IconButton>
-						</Tooltip>
-						<Tooltip title='Filter by category'>
-							<IconButton size='small' onClick={() => setFilterCategory('')}>
-								<FilterIcon />
-							</IconButton>
-						</Tooltip>
 					</Box>
-
-					{/* Active Filters */}
-					{(filterCategory || searchQuery) && (
-						<Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-							{filterCategory && (
-								<Chip
-									label={`Category: ${filterCategory}`}
-									onDelete={() => setFilterCategory('')}
-									size='small'
-								/>
-							)}
-							{searchQuery && (
-								<Chip
-									label={`Search: ${searchQuery}`}
-									onDelete={() => setSearchQuery('')}
-									size='small'
-								/>
-							)}
-						</Box>
-					)}
 
 					<Box sx={{ overflow: 'auto', flex: 1 }}>
 						{loadingStates.products ? (
@@ -536,191 +718,34 @@ const AdminDashboard = () => {
 									<Skeleton variant='rectangular' height={100} sx={{ borderRadius: 2 }} />
 								</Box>
 							))
-						) : filterProducts(sortProducts(products)).length === 0 ? (
+						) : searchProducts(products).length === 0 ? (
 							<Typography sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
 								No products found
 							</Typography>
 						) : (
-							filterProducts(sortProducts(products)).map((product) => (
-								<Fade in key={product.id}>
-									<Box
-										sx={{
-											mb: 2,
-											p: 2,
-											borderRadius: 2,
-											border: '1px solid',
-											borderColor: 'divider',
-											transition: 'all 0.3s ease',
-											'&:hover': {
-												transform: 'translateY(-2px)',
-												boxShadow: 2,
-											},
-										}}
-									>
-										<Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-											<Box
-												sx={{
-													width: 80,
-													height: 80,
-													borderRadius: 3,
-													overflow: 'hidden',
-													boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-													border: '1px solid rgba(255, 77, 143, 0.15)',
-													position: 'relative',
-													transition: 'all 0.3s ease',
-													'&:hover': {
-														transform: 'scale(1.05)',
-														boxShadow: '0 6px 12px rgba(255, 77, 143, 0.2)',
-													},
-													'&::before': {
-														content: '""',
-														position: 'absolute',
-														top: 0,
-														left: 0,
-														width: '100%',
-														height: '100%',
-														background:
-															'linear-gradient(135deg, rgba(255,77,143,0.1) 0%, rgba(156,39,176,0.1) 100%)',
-														opacity: 0,
-														transition: 'opacity 0.3s ease',
-														zIndex: 1,
-														pointerEvents: 'none',
-													},
-													'&:hover::before': {
-														opacity: 0.5,
-													},
-												}}
-											>
-												<img
-													src={product.image}
-													alt={product.name}
-													style={{
-														width: '100%',
-														height: '100%',
-														objectFit: 'cover',
-														transition: 'transform 0.5s ease',
-													}}
-													onMouseOver={(e) => {
-														e.currentTarget.style.transform = 'scale(1.1)'
-													}}
-													onMouseOut={(e) => {
-														e.currentTarget.style.transform = 'scale(1)'
-													}}
-												/>
-											</Box>
-											<Box sx={{ flex: 1 }}>
-												<Typography
-													variant='h6'
-													sx={{
-														fontWeight: 600,
-														mb: 0.5,
-														color: 'text.primary',
-													}}
-												>
-													{product.name}
-												</Typography>
-												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
-													<Typography
-														variant='body2'
-														sx={{
-															color: 'primary.main',
-															bgcolor: 'rgba(255, 77, 143, 0.08)',
-															px: 1,
-															py: 0.5,
-															borderRadius: 1,
-															display: 'inline-flex',
-															alignItems: 'center',
-														}}
-													>
-														{product.category}
-													</Typography>
-													<Typography
-														variant='body2'
-														sx={{
-															fontWeight: 'bold',
-															color: product.discount > 0 ? 'success.main' : 'text.primary',
-														}}
-													>
-														₹{product.price.toFixed(2)}
-														{product.discount > 0 && (
-															<Typography
-																component='span'
-																variant='caption'
-																sx={{
-																	ml: 1,
-																	color: 'success.main',
-																}}
-															>
-																(-{product.discount}%)
-															</Typography>
-														)}
-													</Typography>
-													<Typography
-														variant='body2'
-														sx={{
-															color: product.stock > 0 ? 'success.main' : 'error.main',
-															bgcolor:
-																product.stock > 0
-																	? 'rgba(76, 175, 80, 0.08)'
-																	: 'rgba(211, 47, 47, 0.08)',
-															px: 1,
-															py: 0.5,
-															borderRadius: 1,
-															display: 'inline-flex',
-															alignItems: 'center',
-														}}
-													>
-														{product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
-													</Typography>
-												</Box>
-												<Typography
-													variant='body2'
-													color='text.secondary'
-													sx={{
-														display: '-webkit-box',
-														WebkitLineClamp: 2,
-														WebkitBoxOrient: 'vertical',
-														overflow: 'hidden',
-														textOverflow: 'ellipsis',
-														maxWidth: '100%',
-													}}
-												>
-													{product.description}
-												</Typography>
-											</Box>
-											<Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-												<Tooltip title='Edit product'>
-													<Button
-														size='small'
-														onClick={() => setEditingProduct(product)}
-														startIcon={<EditIcon />}
-														sx={{ mr: 1 }}
-													>
-														Edit
-													</Button>
-												</Tooltip>
-												<Tooltip title='Delete product'>
-													<Button
-														size='small'
-														color='error'
-														onClick={() => handleDelete(product.id)}
-														startIcon={
-															loadingStates.delete === product.id ? (
-																<CircularProgress size={20} />
-															) : (
-																<DeleteIcon />
-															)
-														}
-														disabled={loadingStates.delete === product.id}
-													>
-														Delete
-													</Button>
-												</Tooltip>
-											</Box>
-										</Box>
-									</Box>
-								</Fade>
-							))
+							<List<{
+								products: Product[]
+								getImageUrl: (image: string) => string
+								setEditingProduct: (product: Product) => void
+								handleDelete: (id: number) => void
+								loadingStates: {
+									delete: number | null
+								}
+							}>
+								height={window.innerHeight - 300}
+								itemCount={searchProducts(products).length}
+								itemSize={120}
+								width='100%'
+								itemData={{
+									products: searchProducts(products),
+									getImageUrl,
+									setEditingProduct,
+									handleDelete,
+									loadingStates,
+								}}
+							>
+								{ProductListItem}
+							</List>
 						)}
 					</Box>
 				</Paper>
@@ -730,14 +755,15 @@ const AdminDashboard = () => {
 					sx={{
 						p: 3,
 						borderRadius: 2,
-						boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-						border: '1px solid rgba(255, 77, 143, 0.1)',
+						boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
+						border: '1px solid',
+						borderColor: 'divider',
 						flex: { xs: '1 1 100%', md: '0 0 60%' },
 						display: 'flex',
 						flexDirection: 'column',
 						overflow: 'auto',
 						maxHeight: 'calc(100vh - 200px)',
-						background: '#ffffff',
+						bgcolor: 'background.paper',
 					}}
 				>
 					<Box
@@ -771,7 +797,28 @@ const AdminDashboard = () => {
 						style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
 					>
 						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-							<TextField label='Product Name' {...register('name')} required size='small' />
+							<TextField
+								label='Product Name'
+								{...register('name')}
+								required
+								size='small'
+								sx={{
+									'& .MuiInputBase-input': {
+										color: 'text.primary',
+									},
+									'& .MuiInputLabel-root': {
+										color: 'text.secondary',
+									},
+									'& .MuiOutlinedInput-root': {
+										'& fieldset': {
+											borderColor: 'divider',
+										},
+										'&:hover fieldset': {
+											borderColor: 'primary.main',
+										},
+									},
+								}}
+							/>
 
 							<Box sx={{ display: 'flex', gap: 2 }}>
 								<TextField
@@ -783,7 +830,23 @@ const AdminDashboard = () => {
 									required
 									error={!!errors.price}
 									helperText={errors.price?.message}
-									sx={{ flex: 1 }}
+									sx={{
+										flex: 1,
+										'& .MuiInputBase-input': {
+											color: 'text.primary',
+										},
+										'& .MuiInputLabel-root': {
+											color: 'text.secondary',
+										},
+										'& .MuiOutlinedInput-root': {
+											'& fieldset': {
+												borderColor: 'divider',
+											},
+											'&:hover fieldset': {
+												borderColor: 'primary.main',
+											},
+										},
+									}}
 								/>
 
 								<TextField
@@ -798,20 +861,51 @@ const AdminDashboard = () => {
 									})}
 									error={!!errors.discount}
 									helperText={errors.discount?.message}
-									sx={{ flex: 1 }}
+									sx={{
+										flex: 1,
+										'& .MuiInputBase-input': {
+											color: 'text.primary',
+										},
+										'& .MuiInputLabel-root': {
+											color: 'text.secondary',
+										},
+										'& .MuiOutlinedInput-root': {
+											'& fieldset': {
+												borderColor: 'divider',
+											},
+											'&:hover fieldset': {
+												borderColor: 'primary.main',
+											},
+										},
+									}}
 								/>
 							</Box>
 
 							<Box sx={{ display: 'flex', gap: 2 }}>
 								<FormControl sx={{ flex: 1 }} size='small'>
-									<InputLabel>Category</InputLabel>
+									<InputLabel sx={{ color: 'text.secondary' }}>Category</InputLabel>
 									<Controller
 										name='category'
 										control={control}
 										defaultValue=''
 										rules={{ required: 'Category is required' }}
 										render={({ field }) => (
-											<Select {...field} label='Category' error={!!errors.category}>
+											<Select
+												{...field}
+												label='Category'
+												error={!!errors.category}
+												sx={{
+													'& .MuiSelect-select': {
+														color: 'text.primary',
+													},
+													'& .MuiOutlinedInput-notchedOutline': {
+														borderColor: 'divider',
+													},
+													'&:hover .MuiOutlinedInput-notchedOutline': {
+														borderColor: 'primary.main',
+													},
+												}}
+											>
 												{AVAILABLE_CATEGORIES.map((category) => (
 													<MenuItem key={category} value={category}>
 														{category}
@@ -840,7 +934,23 @@ const AdminDashboard = () => {
 									InputProps={{
 										inputProps: { min: 0 },
 									}}
-									sx={{ flex: 1 }}
+									sx={{
+										flex: 1,
+										'& .MuiInputBase-input': {
+											color: 'text.primary',
+										},
+										'& .MuiInputLabel-root': {
+											color: 'text.secondary',
+										},
+										'& .MuiOutlinedInput-root': {
+											'& fieldset': {
+												borderColor: 'divider',
+											},
+											'&:hover fieldset': {
+												borderColor: 'primary.main',
+											},
+										},
+									}}
 								/>
 							</Box>
 						</Box>
@@ -852,6 +962,22 @@ const AdminDashboard = () => {
 							size='small'
 							{...register('description')}
 							required
+							sx={{
+								'& .MuiInputBase-input': {
+									color: 'text.primary',
+								},
+								'& .MuiInputLabel-root': {
+									color: 'text.secondary',
+								},
+								'& .MuiOutlinedInput-root': {
+									'& fieldset': {
+										borderColor: 'divider',
+									},
+									'&:hover fieldset': {
+										borderColor: 'primary.main',
+									},
+								},
+							}}
 						/>
 
 						<Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
@@ -863,24 +989,14 @@ const AdminDashboard = () => {
 									style={{ display: 'none' }}
 									onChange={(e) => {
 										const file = e.target.files?.[0]
-										console.log('File input change:', {
-											hasFile: !!file,
-											fileName: file?.name,
-											fileType: file?.type,
-											fileSize: file?.size,
-										})
-
 										if (file) {
 											const imageUrl = URL.createObjectURL(file)
-											console.log('Created preview URL:', imageUrl)
 											setPreviewImage(imageUrl)
 											setSelectedFile(file)
 										} else if (editingProduct) {
-											console.log('Reverting to editing product image:', editingProduct.image)
 											setPreviewImage(editingProduct.image)
 											setSelectedFile(undefined)
 										} else {
-											console.log('Clearing preview image')
 											setPreviewImage(undefined)
 											setSelectedFile(undefined)
 										}
@@ -895,15 +1011,13 @@ const AdminDashboard = () => {
 											borderRadius: 2,
 											px: 2,
 											py: 1,
+											border: '2px dashed',
 											borderColor: !editingProduct && !previewImage ? 'error.main' : 'primary.main',
 											color: !editingProduct && !previewImage ? 'error.main' : 'primary.main',
-											background:
-												'linear-gradient(to right, rgba(255, 77, 143, 0.05), rgba(156, 39, 176, 0.05))',
+											bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
 											'&:hover': {
 												borderColor: 'primary.dark',
-												background:
-													'linear-gradient(to right, rgba(255, 77, 143, 0.1), rgba(156, 39, 176, 0.1))',
-												boxShadow: '0 4px 8px rgba(255, 77, 143, 0.15)',
+												bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
 											},
 										}}
 									>
@@ -921,10 +1035,10 @@ const AdminDashboard = () => {
 										display: 'inline-block',
 										borderRadius: '8px',
 										padding: '4px',
-										background:
-											'linear-gradient(to bottom right, rgba(255, 77, 143, 0.05), rgba(156, 39, 176, 0.05))',
-										border: '1px solid rgba(255, 77, 143, 0.15)',
-										boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+										bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
+										border: '1px solid',
+										borderColor: 'divider',
+										boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
 									}}
 								>
 									<img
@@ -961,9 +1075,9 @@ const AdminDashboard = () => {
 									borderRadius: 2,
 									px: 3,
 									py: 1,
-									boxShadow: '0 4px 8px rgba(255, 77, 143, 0.2)',
+									boxShadow: (theme) => `0 4px 8px ${alpha(theme.palette.primary.main, 0.2)}`,
 									'&:hover': {
-										boxShadow: '0 6px 12px rgba(255, 77, 143, 0.3)',
+										boxShadow: (theme) => `0 6px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
 									},
 								}}
 								disabled={loadingStates.submit}

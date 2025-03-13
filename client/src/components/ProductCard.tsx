@@ -19,6 +19,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
+import { alpha } from '@mui/material/styles'
 
 interface ProductCardProps {
 	product: Product
@@ -70,15 +71,18 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 					right: -5,
 					bottom: -5,
 					borderRadius: 5,
-					background:
-						'linear-gradient(135deg, rgba(255,77,143,0.08) 0%, rgba(156,39,176,0.05) 100%)',
+					background: (theme) =>
+						`linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(
+							theme.palette.secondary.main,
+							0.05
+						)} 100%)`,
 					zIndex: -1,
 					opacity: 0,
 					transition: 'opacity 0.3s ease',
 				},
 				'&:hover': {
 					transform: 'translateY(-8px)',
-					boxShadow: '0 16px 30px rgba(255, 77, 143, 0.15)',
+					boxShadow: (theme) => `0 16px 30px ${alpha(theme.palette.primary.main, 0.15)}`,
 					'&::before': {
 						opacity: 1,
 					},
@@ -89,15 +93,13 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 				<Chip
 					label={`${product.discount}% OFF`}
 					size='small'
+					color='primary'
 					sx={{
 						position: 'absolute',
 						top: 12,
 						right: 12,
 						zIndex: 10,
 						fontWeight: 'bold',
-						background: 'linear-gradient(45deg, #FF4D8F 30%, #FF758E 90%)',
-						boxShadow: '0 4px 8px rgba(255, 77, 143, 0.3)',
-						color: 'white',
 						fontSize: '0.75rem',
 						height: 24,
 					}}
@@ -110,7 +112,7 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 					overflow: 'hidden',
 					borderTopLeftRadius: 16,
 					borderTopRightRadius: 16,
-					boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)',
+					boxShadow: (theme) => `inset 0 0 0 1px ${alpha(theme.palette.common.white, 0.1)}`,
 					'&::before': {
 						content: '""',
 						position: 'absolute',
@@ -118,8 +120,11 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 						left: 0,
 						right: 0,
 						height: '100%',
-						background:
-							'linear-gradient(to bottom, rgba(255,77,143,0.05) 0%, rgba(156,39,176,0.05) 100%)',
+						background: (theme) =>
+							`linear-gradient(to bottom, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(
+								theme.palette.secondary.main,
+								0.05
+							)} 100%)`,
 						zIndex: 1,
 						opacity: 0,
 						transition: 'opacity 0.3s ease',
@@ -134,8 +139,11 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 						left: 0,
 						width: '100%',
 						height: '100%',
-						background:
-							'radial-gradient(circle at top left, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%)',
+						background: (theme) =>
+							`radial-gradient(circle at top left, ${alpha(
+								theme.palette.common.white,
+								0.2
+							)} 0%, transparent 60%)`,
 						zIndex: 2,
 						pointerEvents: 'none',
 					},
@@ -165,8 +173,11 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 						left: 0,
 						width: 60,
 						height: 60,
-						background:
-							'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
+						background: (theme) =>
+							`linear-gradient(135deg, ${alpha(
+								theme.palette.common.white,
+								0.3
+							)} 0%, transparent 100%)`,
 						borderTopLeftRadius: 16,
 						zIndex: 3,
 						pointerEvents: 'none',
@@ -180,7 +191,11 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 						bottom: 0,
 						left: 0,
 						right: 0,
-						background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%)',
+						background: (theme) =>
+							`linear-gradient(to top, ${alpha(
+								theme.palette.common.black,
+								0.75
+							)} 0%, transparent 100%)`,
 						height: '50%',
 						display: 'flex',
 						alignItems: 'flex-end',
@@ -210,15 +225,15 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 								aria-label='view details'
 								size='small'
 								sx={{
-									bgcolor: 'rgba(255,255,255,0.95)',
+									bgcolor: (theme) => alpha(theme.palette.common.white, 0.95),
 									color: 'primary.main',
 									width: 36,
 									height: 36,
 									transition: 'all 0.3s ease',
 									'&:hover': {
-										bgcolor: 'white',
+										bgcolor: 'common.white',
 										transform: 'translateY(-3px)',
-										boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+										boxShadow: (theme) => `0 4px 8px ${alpha(theme.palette.common.black, 0.2)}`,
 									},
 								}}
 							>
@@ -290,14 +305,10 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 						WebkitLineClamp: 2,
 						WebkitBoxOrient: 'vertical',
 						height: '3em',
-						color: '#333',
+						color: 'text.primary',
 						transition: 'color 0.3s ease',
 						'&:hover': {
-							background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-							WebkitBackgroundClip: 'text',
-							WebkitTextFillColor: 'transparent',
-							backgroundClip: 'text',
-							textFillColor: 'transparent',
+							color: 'primary.main',
 						},
 					}}
 				>
@@ -338,11 +349,6 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 									sx={{
 										fontWeight: 700,
 										color: 'primary.main',
-										background: 'linear-gradient(45deg, #FF4D8F 30%, #FF758E 90%)',
-										WebkitBackgroundClip: 'text',
-										WebkitTextFillColor: 'transparent',
-										backgroundClip: 'text',
-										textFillColor: 'transparent',
 									}}
 								>
 									₹{discountedPrice.toFixed(2)}
@@ -364,11 +370,7 @@ const ProductCard = ({ product, addToCart, addToWishlist, isInWishlist }: Produc
 								component='span'
 								sx={{
 									fontWeight: 700,
-									background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-									WebkitBackgroundClip: 'text',
-									WebkitTextFillColor: 'transparent',
-									backgroundClip: 'text',
-									textFillColor: 'transparent',
+									color: 'primary.main',
 								}}
 							>
 								₹{product.price.toFixed(2)}

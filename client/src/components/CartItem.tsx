@@ -10,6 +10,7 @@ import {
 	Button,
 	Divider,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -37,12 +38,13 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 				mb: 2,
 				overflow: 'visible',
 				borderRadius: 3,
-				border: '1px solid rgba(255, 77, 143, 0.1)',
+				border: '1px solid',
+				borderColor: 'divider',
 				position: 'relative',
 				transition: 'transform 0.3s ease, box-shadow 0.3s ease',
 				'&:hover': {
 					transform: 'translateY(-3px)',
-					boxShadow: '0 8px 16px rgba(255, 77, 143, 0.1)',
+					boxShadow: (theme) => `0 8px 16px ${alpha(theme.palette.primary.main, 0.15)}`,
 				},
 				'&::before': {
 					content: '""',
@@ -51,7 +53,9 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 					left: 0,
 					width: '6px',
 					height: '100%',
-					background: 'linear-gradient(to bottom, #FF4D8F, #BA68C8)',
+					background: (theme) => `linear-gradient(to bottom, 
+						${theme.palette.primary.main}, 
+						${theme.palette.secondary.main})`,
 					borderTopLeftRadius: 12,
 					borderBottomLeftRadius: 12,
 				},
@@ -73,7 +77,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 						height: 120,
 						borderRadius: 2,
 						overflow: 'hidden',
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+						boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
 					}}
 				>
 					<CardMedia
@@ -97,7 +101,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 								bottom: 0,
 								right: 0,
 								bgcolor: 'error.main',
-								color: 'white',
+								color: 'error.contrastText',
 								px: 1,
 								py: 0.5,
 								fontSize: '0.75rem',
@@ -167,13 +171,13 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 							onClick={() => handleQuantityChange(quantity - 1)}
 							disabled={quantity <= 1}
 							sx={{
-								bgcolor: 'rgba(255, 77, 143, 0.1)',
+								bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
 								color: 'primary.main',
 								'&:hover': {
-									bgcolor: 'rgba(255, 77, 143, 0.2)',
+									bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
 								},
 								'&.Mui-disabled': {
-									bgcolor: 'rgba(0, 0, 0, 0.04)',
+									bgcolor: (theme) => alpha(theme.palette.action.disabled, 0.08),
 								},
 							}}
 						>
@@ -205,13 +209,13 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 							onClick={() => handleQuantityChange(quantity + 1)}
 							disabled={quantity >= item.stock}
 							sx={{
-								bgcolor: 'rgba(255, 77, 143, 0.1)',
+								bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
 								color: 'primary.main',
 								'&:hover': {
-									bgcolor: 'rgba(255, 77, 143, 0.2)',
+									bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
 								},
 								'&.Mui-disabled': {
-									bgcolor: 'rgba(0, 0, 0, 0.04)',
+									bgcolor: (theme) => alpha(theme.palette.action.disabled, 0.08),
 								},
 							}}
 						>
@@ -229,10 +233,10 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
 							borderRadius: 6,
 							minWidth: 120,
 							mt: 1,
-							borderColor: 'rgba(244, 67, 54, 0.5)',
+							borderColor: (theme) => alpha(theme.palette.error.main, 0.5),
 							'&:hover': {
 								borderColor: 'error.main',
-								bgcolor: 'rgba(244, 67, 54, 0.04)',
+								bgcolor: (theme) => alpha(theme.palette.error.main, 0.04),
 							},
 						}}
 					>

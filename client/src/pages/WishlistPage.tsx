@@ -19,6 +19,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import { Link as RouterLink } from 'react-router-dom'
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
+import { alpha } from '@mui/material/styles'
 
 interface WishlistPageProps {
 	wishlistItems: Product[]
@@ -49,8 +50,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 						width: 60,
 						height: 60,
 						borderRadius: '50%',
-						background:
-							'linear-gradient(135deg, rgba(255,77,143,0.1) 0%, rgba(156,39,176,0.05) 100%)',
+						background: (theme) => `linear-gradient(135deg, 
+							${alpha(theme.palette.primary.main, 0.1)} 0%, 
+							${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
 						left: -20,
 						top: -10,
 						zIndex: -1,
@@ -62,8 +64,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 						width: 40,
 						height: 40,
 						borderRadius: '50%',
-						background:
-							'linear-gradient(135deg, rgba(156,39,176,0.1) 0%, rgba(255,77,143,0.05) 100%)',
+						background: (theme) => `linear-gradient(135deg, 
+							${alpha(theme.palette.secondary.main, 0.1)} 0%, 
+							${alpha(theme.palette.primary.main, 0.05)} 100%)`,
 						right: -10,
 						bottom: -5,
 						zIndex: -1,
@@ -72,7 +75,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 
 				<FavoriteIcon
 					sx={{
-						color: 'error.main',
+						color: 'primary.main',
 						fontSize: '2rem',
 						mr: 2,
 						animation: 'pulse 1.5s infinite',
@@ -95,11 +98,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 					sx={{
 						fontWeight: 700,
 						textAlign: 'center',
-						background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-						WebkitBackgroundClip: 'text',
-						WebkitTextFillColor: 'transparent',
-						backgroundClip: 'text',
-						textFillColor: 'transparent',
+						color: 'primary.main',
 						mb: 0,
 					}}
 				>
@@ -114,9 +113,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 						p: 5,
 						textAlign: 'center',
 						borderRadius: 4,
-						background:
-							'linear-gradient(135deg, rgba(255,77,143,0.03) 0%, rgba(156,39,176,0.02) 100%)',
-						border: '1px dashed rgba(255,77,143,0.2)',
+						bgcolor: 'background.paper',
+						border: '1px dashed',
+						borderColor: 'divider',
 					}}
 				>
 					<Box
@@ -124,7 +123,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 							width: 80,
 							height: 80,
 							borderRadius: '50%',
-							background: 'rgba(255,77,143,0.08)',
+							bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
@@ -133,12 +132,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 					>
 						<FavoriteIcon
 							sx={{
-								color: 'rgba(255,77,143,0.5)',
+								color: (theme) => alpha(theme.palette.primary.main, 0.5),
 								fontSize: '2.5rem',
 							}}
 						/>
 					</Box>
-					<Typography variant='h5' gutterBottom sx={{ fontWeight: 600, color: '#555' }}>
+					<Typography variant='h5' gutterBottom sx={{ fontWeight: 600, color: 'text.primary' }}>
 						Your wishlist is empty
 					</Typography>
 					<Typography variant='body1' color='text.secondary' sx={{ mb: 3 }}>
@@ -155,11 +154,6 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 							borderRadius: 3,
 							py: 1.2,
 							px: 3,
-							background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-							boxShadow: '0 4px 10px rgba(255, 77, 143, 0.25)',
-							'&:hover': {
-								boxShadow: '0 6px 15px rgba(255, 77, 143, 0.35)',
-							},
 						}}
 					>
 						Explore Collection

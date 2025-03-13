@@ -20,9 +20,10 @@ import {
 	Chip,
 } from '@mui/material'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
+import { alpha } from '@mui/material/styles'
 
 // Define the categories available in the application
-const AVAILABLE_CATEGORIES = ['Silk', 'Cotton', 'Silk Cotton', 'Linen']
+const AVAILABLE_CATEGORIES = ['Cotton', 'Silk', 'Linen', 'Wool', 'Polyester', 'Blends']
 
 const LandingPage: React.FC<{
 	addToCart: (product: Product) => void
@@ -112,9 +113,9 @@ const LandingPage: React.FC<{
 					minHeight='400px'
 					flexDirection='column'
 				>
-					<CircularProgress size={60} thickness={4} />
-					<Typography variant='h6' sx={{ mt: 2, fontStyle: 'italic', color: 'primary.main' }}>
-						Loading exquisite sarees...
+					<CircularProgress size={60} thickness={4} color='primary' />
+					<Typography variant='h6' sx={{ mt: 2, fontStyle: 'italic', color: 'text.secondary' }}>
+						Loading materials...
 					</Typography>
 				</Box>
 			</Container>
@@ -124,12 +125,13 @@ const LandingPage: React.FC<{
 		return (
 			<Container maxWidth='lg' sx={{ py: 8 }}>
 				<Paper
-					elevation={3}
+					elevation={0}
 					sx={{
 						p: 4,
 						textAlign: 'center',
 						borderRadius: 4,
-						border: '1px solid rgba(255, 77, 143, 0.2)',
+						border: '1px solid',
+						borderColor: 'divider',
 					}}
 				>
 					<Typography color='error' variant='h5' gutterBottom>
@@ -144,11 +146,12 @@ const LandingPage: React.FC<{
 
 	return (
 		<Container maxWidth='lg' sx={{ py: 4 }}>
-			{/* Hero Section with Decorative Elements */}
-			<Box
+			{/* Hero Section */}
+			<Paper
+				elevation={0}
 				sx={{
 					position: 'relative',
-					height: '300px',
+					minHeight: '400px',
 					display: 'flex',
 					flexDirection: 'column',
 					justifyContent: 'center',
@@ -157,8 +160,7 @@ const LandingPage: React.FC<{
 					mb: 6,
 					overflow: 'hidden',
 					borderRadius: 4,
-					background:
-						'linear-gradient(135deg, rgba(255,77,143,0.08) 0%, rgba(156,39,176,0.05) 100%)',
+					bgcolor: 'background.paper',
 					'&::before': {
 						content: '""',
 						position: 'absolute',
@@ -166,95 +168,117 @@ const LandingPage: React.FC<{
 						left: 0,
 						right: 0,
 						bottom: 0,
-						background:
-							'radial-gradient(circle at 20% 30%, rgba(255, 77, 143, 0.15) 0%, transparent 40%), ' +
-							'radial-gradient(circle at 80% 70%, rgba(156, 39, 176, 0.1) 0%, transparent 40%)',
+						background: (theme) => `
+							radial-gradient(circle at 20% 30%, ${alpha(theme.palette.primary.main, 0.08)} 0%, transparent 40%),
+							radial-gradient(circle at 80% 70%, ${alpha(theme.palette.primary.main, 0.05)} 0%, transparent 40%)
+						`,
 						zIndex: 0,
 					},
 				}}
 			>
 				<Typography
-					variant='h2'
+					variant='h1'
 					component='h1'
 					sx={{
 						fontWeight: 800,
-						mb: 2,
-						background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-						WebkitBackgroundClip: 'text',
-						WebkitTextFillColor: 'transparent',
-						backgroundClip: 'text',
-						textFillColor: 'transparent',
-						textShadow: '0 2px 10px rgba(255, 77, 143, 0.2)',
+						fontSize: { xs: '2.5rem', md: '3.5rem' },
+						mb: 3,
 						position: 'relative',
 						zIndex: 1,
+						color: 'text.primary',
 					}}
 				>
-					Elegant Saree Collection
+					Premium Fabric Materials
 				</Typography>
 				<Typography
-					variant='h6'
+					variant='h5'
 					sx={{
-						maxWidth: '700px',
+						maxWidth: '800px',
 						mb: 4,
 						color: 'text.secondary',
 						position: 'relative',
 						zIndex: 1,
+						px: 2,
 					}}
 				>
-					Discover our exquisite range of handcrafted sarees for every occasion
+					Source high-quality textile raw materials for your clothing manufacturing needs
 				</Typography>
-			</Box>
-
-			{/* Sale Banner */}
-			<Paper
-				elevation={0}
-				sx={{
-					p: 3,
-					mb: 6,
-					borderRadius: 4,
-					background: 'linear-gradient(45deg, rgba(255,77,143,0.1) 0%, rgba(156,39,176,0.05) 100%)',
-					position: 'relative',
-					overflow: 'hidden',
-					border: '1px dashed rgba(255,77,143,0.3)',
-				}}
-			>
-				<Box
-					sx={{
-						position: 'absolute',
-						top: -20,
-						right: -20,
-						width: 100,
-						height: 100,
-						borderRadius: '50%',
-						background: 'rgba(255,77,143,0.1)',
-					}}
-				/>
-				<Box
-					sx={{
-						position: 'absolute',
-						bottom: -30,
-						left: -30,
-						width: 120,
-						height: 120,
-						borderRadius: '50%',
-						background: 'rgba(156,39,176,0.1)',
-					}}
-				/>
-				<Typography
-					variant='h5'
-					sx={{
-						fontWeight: 700,
-						mb: 1,
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					Special Offer! 🎉
-				</Typography>
-				<Typography variant='body1' sx={{ position: 'relative', zIndex: 1 }}>
-					Get up to 30% off on selected sarees. Limited time offer.
-				</Typography>
+				<Box sx={{ position: 'relative', zIndex: 1, display: 'flex', gap: 2, mt: 2 }}>
+					<Button variant='contained' size='large'>
+						Explore Materials
+					</Button>
+					<Button variant='outlined' size='large'>
+						Request Samples
+					</Button>
+				</Box>
 			</Paper>
+
+			{/* Features Grid */}
+			<Grid container spacing={3} sx={{ mb: 6 }}>
+				{[
+					{
+						title: 'Quality Assurance',
+						description: 'Rigorous testing and certification for all materials',
+						icon: '🏆',
+					},
+					{
+						title: 'Bulk Orders',
+						description: 'Competitive pricing for wholesale purchases',
+						icon: '📦',
+					},
+					{
+						title: 'Global Shipping',
+						description: 'Worldwide delivery with tracking',
+						icon: '🌍',
+					},
+					{
+						title: 'Custom Solutions',
+						description: 'Tailored materials for your specific needs',
+						icon: '⚡',
+					},
+				].map((feature, index) => (
+					<Grid item xs={12} sm={6} md={3} key={index}>
+						<Paper
+							elevation={0}
+							sx={{
+								p: 3,
+								height: '100%',
+								bgcolor: 'background.paper',
+								border: '1px solid',
+								borderColor: 'divider',
+								transition: 'all 0.3s ease',
+								'&:hover': {
+									transform: 'translateY(-5px)',
+									boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.common.black, 0.2)}`,
+									borderColor: 'primary.main',
+								},
+							}}
+						>
+							<Typography variant='h2' sx={{ fontSize: '2rem', mb: 2 }}>
+								{feature.icon}
+							</Typography>
+							<Typography
+								variant='h6'
+								sx={{
+									mb: 1,
+									color: 'text.primary',
+									fontWeight: 600,
+								}}
+							>
+								{feature.title}
+							</Typography>
+							<Typography
+								variant='body2'
+								sx={{
+									color: 'text.secondary',
+								}}
+							>
+								{feature.description}
+							</Typography>
+						</Paper>
+					</Grid>
+				))}
+			</Grid>
 
 			{/* Filters Section */}
 			<Paper
@@ -263,23 +287,11 @@ const LandingPage: React.FC<{
 					p: 3,
 					mb: 4,
 					borderRadius: 4,
-					background:
-						'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%)',
-					border: '1px solid rgba(255,77,143,0.1)',
+					bgcolor: 'background.paper',
+					border: '1px solid',
+					borderColor: 'divider',
 					position: 'relative',
 					overflow: 'hidden',
-					'&::before': {
-						content: '""',
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						width: '100%',
-						height: '100%',
-						background:
-							"url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23FF4D8F' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E\")",
-						opacity: 0.5,
-						zIndex: 0,
-					},
 				}}
 			>
 				<Typography
@@ -323,14 +335,12 @@ const LandingPage: React.FC<{
 							fullWidth
 							id='min-price'
 							label='Min Price'
-							variant='outlined'
-							size='small'
 							type='number'
 							value={filters.minPrice}
 							onChange={(e) => handleFilterChange('minPrice', e.target.value)}
 							InputProps={{
 								startAdornment: (
-									<Box component='span' sx={{ mr: 0.5 }}>
+									<Box component='span' sx={{ mr: 0.5, color: 'text.primary' }}>
 										$
 									</Box>
 								),
@@ -342,14 +352,12 @@ const LandingPage: React.FC<{
 							fullWidth
 							id='max-price'
 							label='Max Price'
-							variant='outlined'
-							size='small'
 							type='number'
 							value={filters.maxPrice}
 							onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
 							InputProps={{
 								startAdornment: (
-									<Box component='span' sx={{ mr: 0.5 }}>
+									<Box component='span' sx={{ mr: 0.5, color: 'text.primary' }}>
 										$
 									</Box>
 								),
@@ -368,13 +376,19 @@ const LandingPage: React.FC<{
 					mb: 4,
 				}}
 			>
-				<Typography variant='h6' sx={{ fontWeight: 600 }}>
+				<Typography variant='h6' sx={{ fontWeight: 600, color: 'text.primary' }}>
 					Our Collection
 					<Chip
 						label={`${pagination.total} items`}
 						size='small'
-						color='primary'
-						sx={{ ml: 1, fontWeight: 600 }}
+						sx={{
+							ml: 1,
+							fontWeight: 600,
+							bgcolor: 'background.paper',
+							color: 'text.primary',
+							border: '1px solid',
+							borderColor: 'divider',
+						}}
 					/>
 				</Typography>
 
@@ -382,8 +396,18 @@ const LandingPage: React.FC<{
 					<Chip
 						label={`Category: ${filters.category}`}
 						onDelete={() => handleFilterChange('category', '')}
-						color='primary'
-						variant='outlined'
+						sx={{
+							bgcolor: 'background.paper',
+							color: 'text.primary',
+							border: '1px solid',
+							borderColor: 'divider',
+							'& .MuiChip-deleteIcon': {
+								color: 'text.secondary',
+								'&:hover': {
+									color: 'text.primary',
+								},
+							},
+						}}
 					/>
 				)}
 			</Box>

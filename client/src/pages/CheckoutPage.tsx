@@ -28,6 +28,7 @@ import {
 	Check as CheckIcon,
 	ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material'
+import { alpha } from '@mui/material/styles'
 
 interface CheckoutPageProps {
 	cart: Product[]
@@ -381,78 +382,89 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, clearCart }) => {
 					sx={{
 						p: 4,
 						borderRadius: 2,
-						background:
-							'linear-gradient(to bottom right, rgba(255, 77, 143, 0.05), rgba(156, 39, 176, 0.05))',
-						border: '1px solid rgba(255, 77, 143, 0.2)',
+						bgcolor: 'background.paper',
+						border: '1px solid',
+						borderColor: 'divider',
 						position: 'relative',
 						overflow: 'hidden',
-					}}
-				>
-					<Box
-						sx={{
+						'&::before': {
+							content: '""',
 							position: 'absolute',
 							top: -50,
 							right: -50,
 							width: 150,
 							height: 150,
 							borderRadius: '50%',
-							background:
-								'radial-gradient(circle, rgba(255, 77, 143, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
-						}}
-					/>
-					<Box
-						sx={{
+							background: (theme) =>
+								`radial-gradient(circle, ${alpha(
+									theme.palette.primary.main,
+									0.1
+								)} 0%, transparent 70%)`,
+						},
+						'&::after': {
+							content: '""',
 							position: 'absolute',
 							bottom: -30,
 							left: -30,
 							width: 100,
 							height: 100,
 							borderRadius: '50%',
-							background:
-								'radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
+							background: (theme) =>
+								`radial-gradient(circle, ${alpha(
+									theme.palette.secondary.main,
+									0.1
+								)} 0%, transparent 70%)`,
+						},
+					}}
+				>
+					<Box
+						sx={{
+							width: 80,
+							height: 80,
+							borderRadius: '50%',
+							bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							mx: 'auto',
+							mb: 3,
 						}}
-					/>
-					<Box sx={{ textAlign: 'center', py: 4 }}>
+					>
 						<ShoppingBagIcon
 							sx={{
-								fontSize: 60,
-								color: 'primary.main',
-								mb: 2,
-								opacity: 0.7,
+								fontSize: 40,
+								color: (theme) => alpha(theme.palette.primary.main, 0.7),
 							}}
 						/>
-						<Typography
-							variant='h4'
-							gutterBottom
-							sx={{
-								fontWeight: 'bold',
-								background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-								WebkitBackgroundClip: 'text',
-								WebkitTextFillColor: 'transparent',
-								backgroundClip: 'text',
-							}}
-						>
-							Your Cart is Empty
-						</Typography>
-						<Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
-							Add some beautiful sarees to your cart before proceeding to checkout.
-						</Typography>
-						<Button
-							variant='contained'
-							color='primary'
-							size='large'
-							onClick={() => navigate('/')}
-							startIcon={<ArrowBackIcon />}
-							sx={{
-								borderRadius: 8,
-								px: 4,
-								py: 1.5,
-								boxShadow: '0 8px 16px rgba(255, 77, 143, 0.2)',
-							}}
-						>
-							Continue Shopping
-						</Button>
 					</Box>
+
+					<Typography
+						variant='h4'
+						gutterBottom
+						sx={{
+							fontWeight: 'bold',
+							color: 'primary.main',
+						}}
+					>
+						Your Cart is Empty
+					</Typography>
+					<Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
+						Add some beautiful sarees to your cart before proceeding to checkout.
+					</Typography>
+					<Button
+						variant='contained'
+						color='primary'
+						size='large'
+						onClick={() => navigate('/')}
+						startIcon={<ArrowBackIcon />}
+						sx={{
+							borderRadius: 8,
+							px: 4,
+							py: 1.5,
+						}}
+					>
+						Continue Shopping
+					</Button>
 				</Paper>
 			</Container>
 		)
@@ -467,89 +479,87 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, clearCart }) => {
 						sx={{
 							p: 4,
 							borderRadius: 2,
-							background:
-								'linear-gradient(to bottom right, rgba(255, 77, 143, 0.05), rgba(156, 39, 176, 0.05))',
-							border: '1px solid rgba(255, 77, 143, 0.2)',
+							bgcolor: 'background.paper',
+							border: '1px solid',
+							borderColor: 'divider',
 							position: 'relative',
 							overflow: 'hidden',
-						}}
-					>
-						<Box
-							sx={{
+							'&::before': {
+								content: '""',
 								position: 'absolute',
 								top: -50,
 								right: -50,
 								width: 150,
 								height: 150,
 								borderRadius: '50%',
-								background:
-									'radial-gradient(circle, rgba(255, 77, 143, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
-							}}
-						/>
-						<Box
-							sx={{
+								background: (theme) =>
+									`radial-gradient(circle, ${alpha(
+										theme.palette.primary.main,
+										0.1
+									)} 0%, transparent 70%)`,
+							},
+							'&::after': {
+								content: '""',
 								position: 'absolute',
 								bottom: -30,
 								left: -30,
 								width: 100,
 								height: 100,
 								borderRadius: '50%',
-								background:
-									'radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
+								background: (theme) =>
+									`radial-gradient(circle, ${alpha(
+										theme.palette.secondary.main,
+										0.1
+									)} 0%, transparent 70%)`,
+							},
+						}}
+					>
+						<Box
+							sx={{
+								width: 80,
+								height: 80,
+								borderRadius: '50%',
+								bgcolor: 'primary.main',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								margin: '0 auto',
+								mb: 3,
+								boxShadow: (theme) => `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
 							}}
-						/>
-						<Box sx={{ textAlign: 'center', py: 4 }}>
-							<Box
-								sx={{
-									width: 80,
-									height: 80,
-									borderRadius: '50%',
-									background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									margin: '0 auto',
-									mb: 3,
-									boxShadow: '0 8px 16px rgba(255, 77, 143, 0.2)',
-								}}
-							>
-								<CheckIcon sx={{ fontSize: 40, color: 'white' }} />
-							</Box>
-							<Typography
-								variant='h4'
-								gutterBottom
-								sx={{
-									fontWeight: 'bold',
-									background: 'linear-gradient(45deg, #FF4D8F 30%, #9C27B0 90%)',
-									WebkitBackgroundClip: 'text',
-									WebkitTextFillColor: 'transparent',
-									backgroundClip: 'text',
-								}}
-							>
-								Order Placed Successfully!
-							</Typography>
-							<Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
-								Thank you for your purchase. Your order has been received and is being processed.
-							</Typography>
-							<Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
-								A confirmation email has been sent to {formData.email}
-							</Typography>
-							<Button
-								variant='contained'
-								color='primary'
-								size='large'
-								onClick={() => navigate('/')}
-								startIcon={<ArrowBackIcon />}
-								sx={{
-									borderRadius: 8,
-									px: 4,
-									py: 1.5,
-									boxShadow: '0 8px 16px rgba(255, 77, 143, 0.2)',
-								}}
-							>
-								Continue Shopping
-							</Button>
+						>
+							<CheckIcon sx={{ fontSize: 40, color: 'primary.contrastText' }} />
 						</Box>
+						<Typography
+							variant='h4'
+							gutterBottom
+							sx={{
+								fontWeight: 'bold',
+								color: 'primary.main',
+							}}
+						>
+							Order Placed Successfully!
+						</Typography>
+						<Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
+							Thank you for your purchase. Your order has been received and is being processed.
+						</Typography>
+						<Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
+							A confirmation email has been sent to {formData.email}
+						</Typography>
+						<Button
+							variant='contained'
+							color='primary'
+							size='large'
+							onClick={() => navigate('/')}
+							startIcon={<ArrowBackIcon />}
+							sx={{
+								borderRadius: 8,
+								px: 4,
+								py: 1.5,
+							}}
+						>
+							Continue Shopping
+						</Button>
 					</Paper>
 				</Fade>
 			</Container>
@@ -563,9 +573,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, clearCart }) => {
 				sx={{
 					p: 4,
 					borderRadius: 2,
-					background:
-						'linear-gradient(to bottom right, rgba(255, 77, 143, 0.05), rgba(156, 39, 176, 0.05))',
-					border: '1px solid rgba(255, 77, 143, 0.2)',
+					bgcolor: 'background.paper',
+					border: '1px solid',
+					borderColor: 'divider',
 					position: 'relative',
 					overflow: 'hidden',
 				}}

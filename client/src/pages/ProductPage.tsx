@@ -25,6 +25,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite'
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import HomeIcon from '@mui/icons-material/Home'
+import { alpha } from '@mui/material/styles'
 
 interface ProductPageProps {
 	addToCart: (product: Product) => void
@@ -156,11 +157,20 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 							overflow: 'hidden',
 							position: 'relative',
 							height: '100%',
-							border: '1px solid rgba(255,77,143,0.15)',
-							boxShadow: '0 10px 30px rgba(0,0,0,0.08), 0 6px 10px rgba(0,0,0,0.05)',
+							border: '1px solid',
+							borderColor: 'divider',
+							boxShadow: (theme) =>
+								`0 10px 30px ${alpha(theme.palette.common.black, 0.08)}, 0 6px 10px ${alpha(
+									theme.palette.common.black,
+									0.05
+								)}`,
 							transition: 'all 0.3s ease-in-out',
 							'&:hover': {
-								boxShadow: '0 15px 35px rgba(255,77,143,0.1), 0 8px 12px rgba(0,0,0,0.08)',
+								boxShadow: (theme) =>
+									`0 15px 35px ${alpha(theme.palette.primary.main, 0.1)}, 0 8px 12px ${alpha(
+										theme.palette.common.black,
+										0.08
+									)}`,
 								transform: 'translateY(-5px)',
 							},
 							'&::before': {
@@ -170,8 +180,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 								left: 0,
 								width: 100,
 								height: 100,
-								background:
-									'radial-gradient(circle at top left, rgba(255,77,143,0.15) 0%, rgba(255,255,255,0) 70%)',
+								background: (theme) =>
+									`radial-gradient(circle at top left, ${alpha(
+										theme.palette.primary.main,
+										0.15
+									)} 0%, transparent 70%)`,
 								borderTopLeftRadius: 16,
 								zIndex: 1,
 								pointerEvents: 'none',
@@ -183,8 +196,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 								right: 0,
 								width: 100,
 								height: 100,
-								background:
-									'radial-gradient(circle at bottom right, rgba(156,39,176,0.15) 0%, rgba(255,255,255,0) 70%)',
+								background: (theme) =>
+									`radial-gradient(circle at bottom right, ${alpha(
+										theme.palette.secondary.main,
+										0.15
+									)} 0%, transparent 70%)`,
 								borderBottomRightRadius: 16,
 								zIndex: 1,
 								pointerEvents: 'none',
@@ -203,8 +219,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 									left: 0,
 									width: '100%',
 									height: '100%',
-									background:
-										'linear-gradient(135deg, rgba(255,77,143,0.03) 0%, rgba(156,39,176,0.03) 100%)',
+									background: (theme) =>
+										`linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.03)} 0%, ${alpha(
+											theme.palette.secondary.main,
+											0.03
+										)} 100%)`,
 									zIndex: 2,
 									opacity: 0,
 									transition: 'opacity 0.5s ease',
@@ -303,11 +322,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 									variant='h4'
 									sx={{
 										fontWeight: 700,
-										background: 'linear-gradient(45deg, #FF4D8F 30%, #FF758E 90%)',
-										WebkitBackgroundClip: 'text',
-										WebkitTextFillColor: 'transparent',
-										backgroundClip: 'text',
-										textFillColor: 'transparent',
+										color: 'primary.main',
 									}}
 								>
 									₹{discountedPrice.toFixed(2)}
@@ -328,11 +343,10 @@ const ProductPage: React.FC<ProductPageProps> = ({ addToCart, addToWishlist, isI
 										<Chip
 											label={`${product.discount}% OFF`}
 											size='small'
+											color='primary'
 											sx={{
-												background: 'linear-gradient(45deg, #FF4D8F 30%, #FF758E 90%)',
-												color: 'white',
 												fontWeight: 'bold',
-												boxShadow: '0 2px 5px rgba(255,77,143,0.3)',
+												boxShadow: (theme) => `0 2px 5px ${alpha(theme.palette.primary.main, 0.3)}`,
 											}}
 										/>
 									</>
